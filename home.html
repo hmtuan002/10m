@@ -523,11 +523,16 @@
             </div>
             
             <div id="savedDocuments" class="saved-documents">
-                <h3>BÁO CÁO ĐÃ LƯU</h3>
-                <div id="documentList" class="document-list">
-                    <!-- Danh sách các báo cáo đã lưu sẽ hiển thị ở đây -->
-                </div>
-            </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin: 0;">BÁO CÁO ĐÃ LƯU</h3>
+        <button id="viewStorageFromPreview" class="view-storage-button" style="background-color: #8e44ad; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
+            XEM TẤT CẢ BÁO CÁO
+        </button>
+    </div>
+    <div id="documentList" class="document-list">
+        <!-- Danh sách các báo cáo đã lưu sẽ hiển thị ở đây -->
+    </div>
+</div>
         </div>
         
         <div id="storageContainer" class="storage-container">
@@ -559,7 +564,7 @@
             const documentList = document.getElementById('documentList');
             const storageList = document.getElementById('storageList');
             const savedDocuments = document.getElementById('savedDocuments');
-            
+            const viewStorageFromPreview = document.getElementById('viewStorageFromPreview');
             // Khởi tạo danh sách báo cáo đã lưu từ localStorage
             let savedReports = JSON.parse(localStorage.getItem('savedReports')) || [];
             renderSavedReports();
@@ -1038,7 +1043,13 @@
                 inputForm.style.display = 'block';
                 previewContainer.style.display = 'none';
             });
-            
+            // Xem kho lưu trữ từ nút trong phần xem trước
+viewStorageFromPreview.addEventListener('click', function() {
+    inputForm.style.display = 'none';
+    previewContainer.style.display = 'none';
+    storageContainer.style.display = 'block';
+    renderStorageReports();
+});
             // Tải xuống file Word
             downloadButton.addEventListener('click', function() {
                 const content = documentContent.innerHTML;
