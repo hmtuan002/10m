@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Báo Cáo Thầu Xây Dựng</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2874a6;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #2e86c1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #1a5276;
+        }
+        
+        .preview-container {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        .document {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 14pt;
+        }
+        
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20pt;
+        }
+        
+        .document-header-left, .document-header-right {
+            width: 48%;
+        }
+        
+        .document-header-left div, .document-header-right div {
+            margin-bottom: 5px;
+        }
+        
+        .document-republic {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5pt;
+        }
+        
+        .document-independence {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20pt;
+        }
+        
+        .document-number {
+            /* Viết thường in thường */
+        }
+        
+        .document-location-date {
+            text-align: right;
+        }
+        
+        .document-title {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10pt;
+        }
+        
+        .document-project {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20pt;
+        }
+        
+        .document-subtitle {
+            text-align: center;
+            margin-bottom: 10pt;
+        }
+        
+        .document-commander {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10pt;
+        }
+        
+        .document-basis {
+            text-align: justify;
+            margin-bottom: 10pt;
+            font-style: italic;
+        }
+        
+        .document-decision {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 20pt 0 10pt;
+        }
+        
+        .document-article {
+            text-align: justify;
+            margin-bottom: 10pt;
+        }
+        
+        .document-article-title {
+            font-weight: bold;
+            display: inline;
+        }
+        
+        .document-article-content {
+            display: inline;
+        }
+        
+        .document-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .document-recipient, .document-signature {
+            width: 48%;
+        }
+        
+        .document-recipient-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .document-recipient-list {
+            margin-left: 20px;
+        }
+        
+        .document-signature-title {
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .document-signature-name {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 50px;
+        }
+        
+        .back-button {
+            background-color: #7d7d7d;
+        }
+        
+        .back-button:hover {
+            background-color: #5c5c5c;
+        }
+        
+        .download-button {
+            background-color: #27ae60;
+            margin-right: 10px;
+        }
+        
+        .download-button:hover {
+            background-color: #219653;
+        }
+        
+        .save-button {
+            background-color: #e67e22;
+        }
+        
+        .save-button:hover {
+            background-color: #d35400;
+        }
+        
+        .saved-documents {
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        
+        .saved-documents h3 {
+            margin-bottom: 15px;
+            color: #1a5276;
+        }
+        
+        .document-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .document-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .document-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .document-item h4 {
+            margin-bottom: 10px;
+            color: #2874a6;
+        }
+        
+        .document-item p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .storage-container {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .storage-title {
+            font-size: 24px;
+            color: #2874a6;
+        }
+        
+        .storage-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .storage-action-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .storage-back-button {
+            background-color: #7d7d7d;
+            color: white;
+        }
+        
+        .storage-back-button:hover {
+            background-color: #5c5c5c;
+        }
+        
+        .storage-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .storage-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            transition: transform 0.2s;
+        }
+        
+        .storage-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .storage-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .storage-item-title {
+            font-size: 18px;
+            color: #2874a6;
+            margin-bottom: 5px;
+        }
+        
+        .storage-item-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .storage-item-content {
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .storage-item-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .storage-item-view-button {
+            background-color: #2e86c1;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .storage-item-view-button:hover {
+            background-color: #1a5276;
+        }
+        
+        .storage-item-word-button {
+            background-color: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .storage-item-word-button:hover {
+            background-color: #219653;
+        }
+        
+        .storage-item-delete-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .storage-item-delete-button:hover {
+            background-color: #c0392b;
+        }
+        
+        .empty-storage {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-storage-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        .empty-storage-text {
+            font-size: 18px;
+        }
+
+        @media print {
+            .container, button, .saved-documents, .storage-container {
+                display: none;
+            }
+            .preview-container {
+                display: block;
+                border: none;
+                padding: 0;
+                box-shadow: none;
+            }
+            .document {
+                page-break-after: always;
+            }
+        }
+    </style>
+    <!-- Thêm thư viện html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="inputForm">
+            <div class="section">
+                <div class="section-title">A. THÔNG TIN CHUNG</div>
+                
+                <div class="form-group">
+                    <label for="projectName">I. Tên dự án</label>
+                    <input type="text" id="projectName" placeholder="Nhập tên dự án">
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageCode">III. Gói thầu</label>
+                    <input type="text" id="packageCode" value="XL - 07" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageName">1. Tên gói thầu</label>
+                    <input type="text" id="packageName" placeholder="Nhập tên gói thầu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageContent">2. Nội dung gói thầu</label>
+                    <input type="text" id="packageContent" placeholder="Nhập nội dung gói thầu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageDetails">3. Chi tiết gói thầu</label>
+                    <input type="text" id="packageDetails" placeholder="Nhập chi tiết gói thầu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="decisionNumber">4. Số quyết định</label>
+                    <input type="text" id="decisionNumber" placeholder="Nhập số quyết định">
+                </div>
+                
+                <div class="form-group">
+                    <label for="decisionDate">5. Thời gian ban hành</label>
+                    <input type="date" id="decisionDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bidWinner">6. Tên đơn vị trúng thầu</label>
+                    <input type="text" id="bidWinner" placeholder="Nhập tên đơn vị trúng thầu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">7. Địa chỉ</label>
+                    <input type="text" id="address" placeholder="Nhập địa chỉ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bidValue">8. Giá trúng thầu (đồng)</label>
+                    <input type="text" id="bidValue" placeholder="Nhập giá trúng thầu">
+                </div>
+            </div>
+            
+            <button id="generateButton">TẠO BÁO CÁO</button>
+            <button id="viewStorageButton" style="background-color: #8e44ad;">XEM BÁO CÁO ĐÃ LƯU</button>
+        </div>
+        
+        <div id="previewContainer" class="preview-container">
+            <div id="documentContent" class="document">
+                <!-- Nội dung báo cáo sẽ được hiển thị ở đây -->
+            </div>
+            
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button id="backButton" class="back-button">QUAY LẠI</button>
+                <button id="downloadButton" class="download-button">TẢI XUỐNG (WORD)</button>
+                <button id="saveButton" class="save-button">LƯU BÁO CÁO</button>
+            </div>
+            
+            <div id="savedDocuments" class="saved-documents">
+                <h3>BÁO CÁO ĐÃ LƯU</h3>
+                <div id="documentList" class="document-list">
+                    <!-- Danh sách các báo cáo đã lưu sẽ hiển thị ở đây -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="storageContainer" class="storage-container">
+            <div class="storage-header">
+                <h2 class="storage-title">KHO LƯU TRỮ BÁO CÁO</h2>
+                <div class="storage-actions">
+                    <button id="storageBackButton" class="storage-action-button storage-back-button">QUAY LẠI</button>
+                </div>
+            </div>
+            
+            <div id="storageList" class="storage-list">
+                <!-- Danh sách báo cáo trong kho lưu trữ sẽ hiển thị ở đây -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateButton = document.getElementById('generateButton');
+            const viewStorageButton = document.getElementById('viewStorageButton');
+            const backButton = document.getElementById('backButton');
+            const storageBackButton = document.getElementById('storageBackButton');
+            const downloadButton = document.getElementById('downloadButton');
+            const saveButton = document.getElementById('saveButton');
+            const inputForm = document.getElementById('inputForm');
+            const previewContainer = document.getElementById('previewContainer');
+            const storageContainer = document.getElementById('storageContainer');
+            const documentContent = document.getElementById('documentContent');
+            const documentList = document.getElementById('documentList');
+            const storageList = document.getElementById('storageList');
+            const savedDocuments = document.getElementById('savedDocuments');
+            
+            // Khởi tạo danh sách báo cáo đã lưu từ localStorage
+            let savedReports = JSON.parse(localStorage.getItem('savedReports')) || [];
+            renderSavedReports();
+            renderStorageReports();
+            
+            // Hàm chuyển đổi số thành chữ
+            function numberToWords(number) {
+                const units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'bảy', 'chín'];
+                const positions = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+                
+                if (number === 0) return 'không';
+                
+                let words = '';
+                let position = 0;
+                
+                do {
+                    const block = number % 1000;
+                    if (block !== 0) {
+                        words = readBlock(block) + ' ' + positions[position] + ' ' + words;
+                    }
+                    position++;
+                    number = Math.floor(number / 1000);
+                } while (number > 0);
+                
+                return words.trim() + ' đồng';
+            }
+            
+            function readBlock(number) {
+                const units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'bảy', 'chín'];
+                const tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'bảy mươi', 'chín mươi'];
+                const hundreds = ['', 'một trăm', 'hai trăm', 'ba trăm', 'bốn trăm', 'năm trăm', 'sáu trăm', 'bảy trăm', 'bảy trăm', 'chín trăm'];
+                
+                let result = '';
+                const hundred = Math.floor(number / 100);
+                const ten = Math.floor((number % 100) / 10);
+                const unit = number % 10;
+                
+                if (hundred > 0) {
+                    result += hundreds[hundred] + ' ';
+                }
+                
+                if (ten > 0) {
+                    result += tens[ten] + ' ';
+                    if (unit > 0) {
+                        if (unit === 1 && ten > 1) {
+                            result += 'mốt';
+                        } else if (unit === 5 && ten > 0) {
+                            result += 'lăm';
+                        } else {
+                            result += units[unit];
+                        }
+                    }
+                } else if (unit > 0) {
+                    result += units[unit];
+                } else if (ten === 1) {
+                    result += 'mười';
+                }
+                
+                return result.trim();
+            }
+            
+            // Hàm định dạng ngày tháng
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                
+                return `ngày ${day} tháng ${month} năm ${year}`;
+            }
+            
+            // Hàm hiển thị danh sách báo cáo đã lưu
+            function renderSavedReports() {
+                documentList.innerHTML = '';
+                
+                if (savedReports.length === 0) {
+                    documentList.innerHTML = '<p>Chưa có báo cáo nào được lưu.</p>';
+                    return;
+                }
+                
+                // Chỉ hiển thị 3 báo cáo gần nhất
+                const recentReports = [...savedReports].reverse().slice(0, 3);
+                
+                recentReports.forEach((report, index) => {
+                    const reportItem = document.createElement('div');
+                    reportItem.className = 'document-item';
+                    reportItem.innerHTML = `
+                        <h4>Báo cáo ${savedReports.length - index}</h4>
+                        <p>Dự án: ${report.projectName}</p>
+                        <p>Ngày tạo: ${new Date(report.timestamp).toLocaleDateString('vi-VN')}</p>
+                    `;
+                    
+                    reportItem.addEventListener('click', () => {
+                        documentContent.innerHTML = report.content;
+                        inputForm.style.display = 'none';
+                        previewContainer.style.display = 'block';
+                        storageContainer.style.display = 'none';
+                    });
+                    
+                    documentList.appendChild(reportItem);
+                });
+            }
+            
+            // Hàm hiển thị danh sách báo cáo trong kho lưu trữ
+            function renderStorageReports() {
+                storageList.innerHTML = '';
+                
+                if (savedReports.length === 0) {
+                    storageList.innerHTML = `
+                        <div class="empty-storage">
+                            <div class="empty-storage-icon">📁</div>
+                            <div class="empty-storage-text">Kho lưu trữ trống</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Hiển thị tất cả báo cáo theo thứ tự mới nhất lên đầu
+                const reversedReports = [...savedReports].reverse();
+                
+                reversedReports.forEach((report, index) => {
+                    const reportItem = document.createElement('div');
+                    reportItem.className = 'storage-item';
+                    reportItem.innerHTML = `
+                        <div class="storage-item-header">
+                            <div>
+                                <h3 class="storage-item-title">Báo cáo ${reversedReports.length - index}</h3>
+                                <p class="storage-item-date">Ngày tạo: ${new Date(report.timestamp).toLocaleDateString('vi-VN')} - ${new Date(report.timestamp).toLocaleTimeString('vi-VN')}</p>
+                            </div>
+                        </div>
+                        <div class="storage-item-content">
+                            <p><strong>Dự án:</strong> ${report.projectName}</p>
+                            <p><strong>Gói thầu:</strong> ${report.packageCode || 'XL - 07'}</p>
+                            <p><strong>Đơn vị trúng thầu:</strong> ${report.bidWinner || 'Chưa có thông tin'}</p>
+                        </div>
+                        <div class="storage-item-actions">
+                            <button class="storage-item-view-button" data-id="${report.id}">XEM</button>
+                            <button class="storage-item-word-button" data-id="${report.id}">WORD</button>
+                            <button class="storage-item-delete-button" data-id="${report.id}">XÓA</button>
+                        </div>
+                    `;
+                    
+                    storageList.appendChild(reportItem);
+                });
+                
+                // Thêm sự kiện cho các nút
+                document.querySelectorAll('.storage-item-view-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        const report = savedReports.find(r => r.id === reportId);
+                        if (report) {
+                            documentContent.innerHTML = report.content;
+                            inputForm.style.display = 'none';
+                            previewContainer.style.display = 'block';
+                            storageContainer.style.display = 'none';
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.storage-item-word-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        const report = savedReports.find(r => r.id === reportId);
+                        if (report) {
+                            downloadReportAsWord(report);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.storage-item-delete-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        if (confirm('Bạn có chắc chắn muốn xóa báo cáo này?')) {
+                            deleteReport(reportId);
+                        }
+                    });
+                });
+            }
+            
+            // Hàm xóa báo cáo
+            function deleteReport(reportId) {
+                savedReports = savedReports.filter(report => report.id !== reportId);
+                localStorage.setItem('savedReports', JSON.stringify(savedReports));
+                renderSavedReports();
+                renderStorageReports();
+                alert('Báo cáo đã được xóa thành công!');
+            }
+            
+            // Hàm tải báo cáo dưới dạng Word
+            function downloadReportAsWord(report) {
+                const content = report.content;
+                
+                // Tạo nội dung HTML cho file Word
+                const wordContent = `
+                    <!DOCTYPE html>
+                    <html lang="vi">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Báo Cáo Thầu Xây Dựng</title>
+                        <style>
+                            body {
+                                font-family: 'Times New Roman', serif;
+                                line-height: 1.6;
+                                font-size: 14pt;
+                                margin: 1in;
+                            }
+                            .document-header {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 20pt;
+                            }
+                            .document-header-left, .document-header-right {
+                                width: 48%;
+                            }
+                            .document-header-left div, .document-header-right div {
+                                margin-bottom: 5px;
+                            }
+                            .document-republic {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 5pt;
+                            }
+                            .document-independence {
+                                text-align: center;
+                                font-weight: bold;
+                                margin-bottom: 20pt;
+                            }
+                            .document-number {
+                                /* Viết thường in thường */
+                            }
+                            .document-location-date {
+                                text-align: right;
+                            }
+                            .document-title {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 10pt;
+                            }
+                            .document-project {
+                                text-align: center;
+                                font-weight: bold;
+                                margin-bottom: 20pt;
+                            }
+                            .document-subtitle {
+                                text-align: center;
+                                margin-bottom: 10pt;
+                            }
+                            .document-commander {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 10pt;
+                            }
+                            .document-basis {
+                                text-align: justify;
+                                margin-bottom: 10pt;
+                                font-style: italic;
+                            }
+                            .document-decision {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin: 20pt 0 10pt;
+                            }
+                            .document-article {
+                                text-align: justify;
+                                margin-bottom: 10pt;
+                            }
+                            .document-article-title {
+                                font-weight: bold;
+                                display: inline;
+                            }
+                            .document-article-content {
+                                display: inline;
+                            }
+                            .document-footer {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 30px;
+                            }
+                            .document-recipient, .document-signature {
+                                width: 48%;
+                            }
+                            .document-recipient-title {
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                            }
+                            .document-recipient-list {
+                                margin-left: 20px;
+                            }
+                            .document-signature-title {
+                                text-transform: uppercase;
+                                font-weight: bold;
+                                text-align: center;
+                                margin-top: 50px;
+                            }
+                            .document-signature-name {
+                                text-align: center;
+                                font-weight: bold;
+                                margin-top: 50px;
+                            }
+                            @media print {
+                                body {
+                                    margin: 0.5in;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${content}
+                    </body>
+                    </html>
+                `;
+                
+                // Tạo file Word bằng cách sử dụng Blob và download
+                const blob = new Blob(['\ufeff', wordContent], { type: 'application/msword' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Bao_Cao_Thau_Xay_Dung_${report.id.slice(0, 8)}.doc`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+            
+            // Hàm tạo báo cáo
+            generateButton.addEventListener('click', function() {
+                // Lấy giá trị từ form
+                const projectName = document.getElementById('projectName').value || 'Doanh trại Trung đoàn bộ binh 24/Sư đoàn bộ binh 10 (Giai đoạn 2)';
+                const packageCode = document.getElementById('packageCode').value;
+                const packageName = document.getElementById('packageName').value || 'Thi công xây dựng hạng mục: Thi công xây dựng số 6 Kon Tum vá Côngty TNHH xây dựng số 6 Kon Tum';
+                const packageContent = document.getElementById('packageContent').value;
+                const packageDetails = document.getElementById('packageDetails').value || 'Nội dung công việc: Thi công xây dựng các hạng mục công trình theo hồ sơ thiết kế bản vẽ thi công và dự toán được phê duyệt';
+                const decisionNumber = document.getElementById('decisionNumber').value || '1085/QĐ-SĐ';
+                const decisionDate = document.getElementById('decisionDate').value || '2025-09-01';
+                const bidWinner = document.getElementById('bidWinner').value || 'Công ty TNHH xây dựng số 6 Kon Tum';
+                const address = document.getElementById('address').value || 'Số 09A, Đường Nguyễn Trãi, Phường Đắk Cấm, thành phố Kon Tum, tỉnh Kon Tum';
+                const bidValue = document.getElementById('bidValue').value || '25.272.001.000';
+                
+                // Kiểm tra xem tất cả các trường đã được nhập hay chưa
+                if (!projectName || !packageName || !packageContent || !packageDetails || 
+                    !decisionNumber || !decisionDate || !bidWinner || !address || !bidValue) {
+                    alert('Vui lòng nhập đầy đủ thông tin!');
+                    return;
+                }
+                
+                // Định dạng giá trị
+                const formattedDate = formatDate(decisionDate);
+                const numericValue = parseFloat(bidValue.replace(/\./g, '').replace(',', '.'));
+                const valueInWords = numberToWords(numericValue).replace(/đồng$/, '').trim() + ' đồng.';
+                
+                // Tạo nội dung báo cáo với bố cục mới
+                const reportContent = `
+                    <div class="document-header">
+                        <div class="document-header-left">
+                            <div style="text-transform: uppercase;">QUÂN ĐOÀN 34</div>
+                            <div style="text-transform: uppercase;">SƯ ĐOÀN 10</div>
+                            <div class="document-number">Số: ${decisionNumber}</div>
+                        </div>
+                        <div class="document-header-right">
+                            <div class="document-republic">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                            <div class="document-independence">Độc lập - Tự do - Hạnh phúc</div>
+                            <div class="document-location-date">Quảng Ngãi, ${formattedDate}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="document-title">QUYẾT ĐỊNH</div>
+                    
+                    <div class="document-project">V/v phê duyệt kết quả lựa chọn nhà thầu gói thầu ${packageCode}</div>
+                    
+                    <div class="document-subtitle">Dự án: ${projectName}</div>
+                    
+                    <div class="document-commander">SƯ ĐOÀN TRƯỞNG SƯ ĐOÀN 10</div>
+                    
+                    <div class="document-basis">
+                        Căn cứ Luật Đầu tư công ngày 29/11/2024;<br>
+                        Căn cứ Luật Quản lý, bảo vệ công trình quốc phòng và khu quân sự ngày 24/11/2023;<br>
+                        Căn cứ Luật số 57/2024/QH15 ngày 29/11/2024 sửa đổi, bổ sung một số điều của Luật Quy hoạch, Luật Đầu tư, Luật Đầu tư theo phương thức đối tác công tư và Luật Đấu thầu;<br>
+                        Căn cứ Luật số 90/2025/QH15 ngày 25/6/2025 sửa đổi, bổ sung một số điều của Luật Đấu thầu, Luật Đầu tư theo phương thức đối tác công tư, Luật Hải quan, Luật Thuế giá trị gia tăng, Luật Thuế xuất khẩu, thuế nhập khẩu, Luật Đầu tư, Luật Đầu tư công, Luật Quản lý, sử dụng tài sản công;<br>
+                        Căn cứ các Nghị định của Chính phủ: Số 85/2025/NĐ-CP ngày 08/4/2025 quy định chi tiết thi hành một số điều của Luật Đầu tư công; số 214/2025/NĐ-CP ngày 04/8/2025 quy định chi tiết một số điều và biện pháp thi hành Luật Đấu thầu về lựa chọn nhà thầu; Quyết định số 35/QĐ-TTg ngày 11/3/2025 ban hành Danh mục bí mật nhà nước trong lĩnh vực quốc phòng;<br>
+                        Căn cứ các Thông tư của Bộ Tài chính: số 79/2025/TT-BTC ngày 4/8/2025 hướng dẫn việc cung cấp, đăng tải thông tin về đấu thầu và mẫu hồ sơ đấu thầu trên Hệ thống mạng đấu thầu Quốc gia; số 80/2025/TT-BTC ngày 8/8/2025 quy định chi tiết mẫu hồ sơ yêu cầu, báo cáo đánh giá, báo cáo thẩm định, kiểm tra, báo cáo tình hình thực hiện hoạt động đấu thầu;<br>
+                        Căn cứ các Thông tư của Bộ Quốc phòng: số 05/2021/TT-BQP ngày 12/01/2021 Quy định một số nội dung về lựa chọn nhà thầu trong phạm vi quản lý của Bộ Quốc phòng; số 74/2023/TT-BQP ngày 11/10/2023 Sửa đổi, bổ sung một số điều của Thông tư số 05/2021/TT-BQP ngày 12/01/2021;<br>
+                        Căn cứ Quyết định số 4660/QĐ-BQP ngày 8/10/2024 của Bộ trưởng Bộ Quốc phòng về việc phê duyệt chủ trương đầu tư dự án Doanh trại Trung đoàn bộ binh 24/Sư đoàn bộ binh 10 (Giai đoạn 2);<br>
+                        Căn cứ các Quyết định của Tư lệnh Quân đoàn: số 912/QĐ-QĐ ngày 23/10/2024 về việc phê duyệt dự án; số 1128/QĐ-QĐ ngày 25/8/2025 về việc phê duyệt thiết kế, dự toán xây dựng đợt 2; số 1129/QĐ-QĐ ngày 25/8/2025 về việc phê duyệt Kế hoạch lựa chọn nhà thầu đợt 5;<br>
+                        Căn cứ biên bản thương thảo hợp đồng ngày 31 tháng 8 năm 2025,<br>
+                        Theo đề nghị của Ban QLDA tại Tờ trình số 1083/TTr-BQL ngày 01/9/2025 và Báo cáo thẩm định số 1084/BC-HCKT ngày 01/9/2025 của Phòng Hậu cần – Kỹ thuật,
+                    </div>
+                    
+                    <div class="document-decision">QUYẾT ĐỊNH</div>
+                    
+                    <div class="document-article">
+                        <span class="document-article-title">Điều 1. </span><span class="document-article-content">Phê duyệt kết quả lựa chọn nhà thầu gói thầu ${packageCode}: ${packageName} thuộc dự án: ${projectName} với những nội dung sau:</span>
+                    </div>
+                    
+                    <div class="document-article">
+                        1.1. Tên đơn vị trúng thầu: ${bidWinner}.<br>
+                        Địa chỉ: ${address}.
+                    </div>
+                    
+                    <div class="document-article">
+                        1.2. Giá trúng thầu: ${bidValue} đồng.<br>
+                        (Bằng chữ: ${valueInWords}).
+                    </div>
+                    
+                    <div class="document-article">
+                        1.3. Loại hợp đồng: Hợp đồng trọn gói.
+                    </div>
+                    
+                    <div class="document-article">
+                        1.4. Thời gian thực hiện: 360 ngày.
+                    </div>
+                    
+                    <div class="document-article">
+                        1.5. Nội dung công việc: ${packageDetails}.
+                    </div>
+                    
+                    <div class="document-article">
+                        <span class="document-article-title">Điều 2. </span><span class="document-article-content">Tổ chức thực hiện</span><br>
+                        Giao Ban Quản lý dự án căn cứ các nội dung được phê duyệt tại Điều 1 Quyết định này, tiến hành tổ chức thực hiện các bước tiếp theo đúng theo các quy định hiện hành của Nhà nước và Bộ Quốc phòng.
+                    </div>
+                    
+                    <div class="document-article">
+                        <span class="document-article-title">Điều 3. </span><span class="document-article-content">Quyết định này có hiệu lực kể từ ngày ký. Ban quản lý dự án, đơn vị tư vấn và các phòng, ban có liên quan chịu trách nhiệm thi hành Quyết định này./.</span>
+                    </div>
+                    
+                    <div class="document-footer">
+                        <div class="document-recipient">
+                            <div class="document-recipient-title">Nơi nhận:</div>
+                            <div class="document-recipient-list">
+                                <div>- Như điều 3;</div>
+                                <div>- Cục Tài chính/BQP;</div>
+                                <div>- Cục Doanh trại/TCHC-KT;</div>
+                                <div>- Phòng Doanh trại/CHC-KT;</div>
+                                <div>- Phòng Tài chính/QĐ34;</div>
+                                <div>- Kho bạc NN (Nere TT VĐT);</div>
+                                <div>- Lưu VT, DT. S10.</div>
+                            </div>
+                        </div>
+                        <div class="document-signature">
+                            <div class="document-signature-title">SƯ ĐOÀN TRƯỞNG</div>
+                            <div class="document-signature-name">Đại tá Bùi Thế Tài</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Hiển thị báo cáo
+                documentContent.innerHTML = reportContent;
+                
+                // Hiển thị phần xem trước và ẩn form nhập liệu
+                inputForm.style.display = 'none';
+                previewContainer.style.display = 'block';
+                storageContainer.style.display = 'none';
+            });
+            
+            // Quay lại form nhập liệu
+            backButton.addEventListener('click', function() {
+                previewContainer.style.display = 'none';
+                inputForm.style.display = 'block';
+                storageContainer.style.display = 'none';
+            });
+            
+            // Xem kho lưu trữ
+            viewStorageButton.addEventListener('click', function() {
+                inputForm.style.display = 'none';
+                previewContainer.style.display = 'none';
+                storageContainer.style.display = 'block';
+                renderStorageReports();
+            });
+            
+            // Quay lại từ kho lưu trữ
+            storageBackButton.addEventListener('click', function() {
+                storageContainer.style.display = 'none';
+                inputForm.style.display = 'block';
+                previewContainer.style.display = 'none';
+            });
+            
+            // Tải xuống file Word
+            downloadButton.addEventListener('click', function() {
+                const content = documentContent.innerHTML;
+                
+                // Tạo nội dung HTML cho file Word
+                const wordContent = `
+                    <!DOCTYPE html>
+                    <html lang="vi">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Báo Cáo Thầu Xây Dựng</title>
+                        <style>
+                            body {
+                                font-family: 'Times New Roman', serif;
+                                line-height: 1.6;
+                                font-size: 14pt;
+                                margin: 1in;
+                            }
+                            .document-header {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 20pt;
+                            }
+                            .document-header-left, .document-header-right {
+                                width: 48%;
+                            }
+                            .document-header-left div, .document-header-right div {
+                                margin-bottom: 5px;
+                            }
+                            .document-republic {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 5pt;
+                            }
+                            .document-independence {
+                                text-align: center;
+                                font-weight: bold;
+                                margin-bottom: 20pt;
+                            }
+                            .document-number {
+                                /* Viết thường in thường */
+                            }
+                            .document-location-date {
+                                text-align: right;
+                            }
+                            .document-title {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 10pt;
+                            }
+                            .document-project {
+                                text-align: center;
+                                font-weight: bold;
+                                margin-bottom: 20pt;
+                            }
+                            .document-subtitle {
+                                text-align: center;
+                                margin-bottom: 10pt;
+                            }
+                            .document-commander {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin-bottom: 10pt;
+                            }
+                            .document-basis {
+                                text-align: justify;
+                                margin-bottom: 10pt;
+                                font-style: italic;
+                            }
+                            .document-decision {
+                                text-align: center;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                                margin: 20pt 0 10pt;
+                            }
+                            .document-article {
+                                text-align: justify;
+                                margin-bottom: 10pt;
+                            }
+                            .document-article-title {
+                                font-weight: bold;
+                                display: inline;
+                            }
+                            .document-article-content {
+                                display: inline;
+                            }
+                            .document-footer {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 30px;
+                            }
+                            .document-recipient, .document-signature {
+                                width: 48%;
+                            }
+                            .document-recipient-title {
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                            }
+                            .document-recipient-list {
+                                margin-left: 20px;
+                            }
+                            .document-signature-title {
+                                text-transform: uppercase;
+                                font-weight: bold;
+                                text-align: center;
+                                margin-top: 50px;
+                            }
+                            .document-signature-name {
+                                text-align: center;
+                                font-weight: bold;
+                                margin-top: 50px;
+                            }
+                            @media print {
+                                body {
+                                    margin: 0.5in;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${content}
+                    </body>
+                    </html>
+                `;
+                
+                // Tạo file Word bằng cách sử dụng Blob và download
+                const blob = new Blob(['\ufeff', wordContent], { type: 'application/msword' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Bao_Cao_Thau_Xay_Dung.doc';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+            
+            // Lưu báo cáo
+            saveButton.addEventListener('click', function() {
+                const projectName = document.getElementById('projectName').value || 'Không có tên';
+                const packageCode = document.getElementById('packageCode').value;
+                const bidWinner = document.getElementById('bidWinner').value;
+                const content = documentContent.innerHTML;
+                
+                const newReport = {
+                    id: Date.now().toString(),
+                    projectName: projectName,
+                    packageCode: packageCode,
+                    bidWinner: bidWinner,
+                    content: content,
+                    timestamp: new Date().toISOString()
+                };
+                
+                savedReports.push(newReport);
+                localStorage.setItem('savedReports', JSON.stringify(savedReports));
+                
+                renderSavedReports();
+                alert('Báo cáo đã được lưu thành công!');
+            });
+        });
+    </script>
+</body>
+</html>
