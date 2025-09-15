@@ -91,9 +91,10 @@
         .document {
             font-family: 'Times New Roman', serif;
             line-height: 1.6;
-            max-width: 800px;
+            width: 100%;
             margin: 0 auto;
             font-size: 14pt;
+            text-align: left;
         }
         
         .document-header {
@@ -115,6 +116,7 @@
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 5pt;
+            font-size: 13pt !important;
         }
         
         .document-independence {
@@ -172,6 +174,7 @@
         .document-article {
             text-align: justify;
             margin-bottom: 10pt;
+            text-indent: 1cm;
         }
         
         .document-article-title {
@@ -200,6 +203,7 @@
         
         .document-recipient-list {
             margin-left: 20px;
+            font-size: 11pt !important;
         }
         
         .document-signature-title {
@@ -207,12 +211,14 @@
             font-weight: bold;
             text-align: center;
             margin-top: 50px;
+            font-size: 14pt !important;
         }
         
         .document-signature-name {
             text-align: center;
             font-weight: bold;
             margin-top: 50px;
+            font-size: 14pt !important;
         }
         
         .back-button {
@@ -446,6 +452,21 @@
                 page-break-after: always;
             }
         }
+        
+        /* Căn chỉnh đặc biệt cho phần header */
+        .header-left-content, .header-right-content {
+            font-size: 13pt !important;
+        }
+        
+        /* Đảm bảo các phần tử có text-align: left */
+        .left-align {
+            text-align: left !important;
+        }
+        
+        /* Đảm bảo các đoạn văn có thụt đầu dòng */
+        .text-indent {
+            text-indent: 1cm;
+        }
     </style>
     <!-- Thêm thư viện html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -523,16 +544,16 @@
             </div>
             
             <div id="savedDocuments" class="saved-documents">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="margin: 0;">BÁO CÁO ĐÃ LƯU</h3>
-        <button id="viewStorageFromPreview" class="view-storage-button" style="background-color: #8e44ad; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
-            XEM TẤT CẢ BÁO CÁO
-        </button>
-    </div>
-    <div id="documentList" class="document-list">
-        <!-- Danh sách các báo cáo đã lưu sẽ hiển thị ở đây -->
-    </div>
-</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">BÁO CÁO ĐÃ LƯU</h3>
+                    <button id="viewStorageFromPreview" class="view-storage-button" style="background-color: #8e44ad; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
+                        XEM TẤT CẢ BÁO CÁO
+                    </button>
+                </div>
+                <div id="documentList" class="document-list">
+                    <!-- Danh sách các báo cáo đã lưu sẽ hiển thị ở đây -->
+                </div>
+            </div>
         </div>
         
         <div id="storageContainer" class="storage-container">
@@ -565,6 +586,7 @@
             const storageList = document.getElementById('storageList');
             const savedDocuments = document.getElementById('savedDocuments');
             const viewStorageFromPreview = document.getElementById('viewStorageFromPreview');
+            
             // Khởi tạo danh sách báo cáo đã lưu từ localStorage
             let savedReports = JSON.parse(localStorage.getItem('savedReports')) || [];
             renderSavedReports();
@@ -765,28 +787,38 @@
                         <meta charset="UTF-8">
                         <title>Báo Cáo Thầu Xây Dựng</title>
                         <style>
+                            @page {
+                                size: A4;
+                                margin: 1cm;
+                            }
                             body {
                                 font-family: 'Times New Roman', serif;
                                 line-height: 1.6;
                                 font-size: 14pt;
-                                margin: 1in;
+                                margin: 0;
+                                padding: 0;
+                                width: 100%;
+                                text-align: left;
                             }
                             .document-header {
                                 display: flex;
                                 justify-content: space-between;
                                 margin-bottom: 20pt;
+                                width: 100%;
                             }
                             .document-header-left, .document-header-right {
                                 width: 48%;
                             }
                             .document-header-left div, .document-header-right div {
                                 margin-bottom: 5px;
+                                font-size: 13pt;
                             }
                             .document-republic {
                                 text-align: center;
                                 font-weight: bold;
                                 text-transform: uppercase;
                                 margin-bottom: 5pt;
+                                font-size: 13pt;
                             }
                             .document-independence {
                                 text-align: center;
@@ -824,6 +856,7 @@
                                 text-align: justify;
                                 margin-bottom: 10pt;
                                 font-style: italic;
+                                text-indent: 1cm;
                             }
                             .document-decision {
                                 text-align: center;
@@ -834,6 +867,7 @@
                             .document-article {
                                 text-align: justify;
                                 margin-bottom: 10pt;
+                                text-indent: 1cm;
                             }
                             .document-article-title {
                                 font-weight: bold;
@@ -846,6 +880,7 @@
                                 display: flex;
                                 justify-content: space-between;
                                 margin-top: 30px;
+                                width: 100%;
                             }
                             .document-recipient, .document-signature {
                                 width: 48%;
@@ -856,22 +891,31 @@
                             }
                             .document-recipient-list {
                                 margin-left: 20px;
+                                font-size: 11pt;
                             }
                             .document-signature-title {
                                 text-transform: uppercase;
                                 font-weight: bold;
                                 text-align: center;
                                 margin-top: 50px;
+                                font-size: 14pt;
                             }
                             .document-signature-name {
                                 text-align: center;
                                 font-weight: bold;
                                 margin-top: 50px;
+                                font-size: 14pt;
                             }
-                            @media print {
-                                body {
-                                    margin: 0.5in;
-                                }
+                            p {
+                                text-align: justify;
+                                text-indent: 1cm;
+                                margin-bottom: 10pt;
+                            }
+                            .left-align {
+                                text-align: left;
+                            }
+                            .text-indent {
+                                text-indent: 1cm;
                             }
                         </style>
                     </head>
@@ -922,15 +966,15 @@
                 // Tạo nội dung báo cáo với bố cục mới
                 const reportContent = `
                     <div class="document-header">
-                        <div class="document-header-left">
-                            <div style="text-transform: uppercase;">QUÂN ĐOÀN 34</div>
-                            <div style="text-transform: uppercase;">SƯ ĐOÀN 10</div>
-                            <div class="document-number">Số: ${decisionNumber}</div>
+                        <div class="document-header-left header-left-content">
+                            <div style="text-transform: uppercase; font-size: 13pt;">QUÂN ĐOÀN 34</div>
+                            <div style="text-transform: uppercase; font-size: 13pt;">SƯ ĐOÀN 10</div>
+                            <div class="document-number" style="font-size: 13pt;">Số: ${decisionNumber}</div>
                         </div>
-                        <div class="document-header-right">
-                            <div class="document-republic">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
-                            <div class="document-independence">Độc lập - Tự do - Hạnh phúc</div>
-                            <div class="document-location-date">Quảng Ngãi, ${formattedDate}</div>
+                        <div class="document-header-right header-right-content">
+                            <div class="document-republic" style="font-size: 13pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                            <div class="document-independence" style="font-size: 13pt;">Độc lập - Tự do - Hạnh phúc</div>
+                            <div class="document-location-date" style="font-size: 13pt;">Quảng Ngãi, ${formattedDate}</div>
                         </div>
                     </div>
                     
@@ -942,7 +986,7 @@
                     
                     <div class="document-commander">SƯ ĐOÀN TRƯỞNG SƯ ĐOÀN 10</div>
                     
-                    <div class="document-basis">
+                    <div class="document-basis text-indent">
                         Căn cứ Luật Đầu tư công ngày 29/11/2024;<br>
                         Căn cứ Luật Quản lý, bảo vệ công trình quốc phòng và khu quân sự ngày 24/11/2023;<br>
                         Căn cứ Luật số 57/2024/QH15 ngày 29/11/2024 sửa đổi, bổ sung một số điều của Luật Quy hoạch, Luật Đầu tư, Luật Đầu tư theo phương thức đối tác công tư và Luật Đấu thầu;<br>
@@ -958,38 +1002,38 @@
                     
                     <div class="document-decision">QUYẾT ĐỊNH</div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         <span class="document-article-title">Điều 1. </span><span class="document-article-content">Phê duyệt kết quả lựa chọn nhà thầu gói thầu ${packageCode}: ${packageName} thuộc dự án: ${projectName} với những nội dung sau:</span>
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         1.1. Tên đơn vị trúng thầu: ${bidWinner}.<br>
                         Địa chỉ: ${address}.
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         1.2. Giá trúng thầu: ${bidValue} đồng.<br>
                         (Bằng chữ: ${valueInWords}).
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         1.3. Loại hợp đồng: Hợp đồng trọn gói.
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         1.4. Thời gian thực hiện: 360 ngày.
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         1.5. Nội dung công việc: ${packageDetails}.
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         <span class="document-article-title">Điều 2. </span><span class="document-article-content">Tổ chức thực hiện</span><br>
                         Giao Ban Quản lý dự án căn cứ các nội dung được phê duyệt tại Điều 1 Quyết định này, tiến hành tổ chức thực hiện các bước tiếp theo đúng theo các quy định hiện hành của Nhà nước và Bộ Quốc phòng.
                     </div>
                     
-                    <div class="document-article">
+                    <div class="document-article text-indent">
                         <span class="document-article-title">Điều 3. </span><span class="document-article-content">Quyết định này có hiệu lực kể từ ngày ký. Ban quản lý dự án, đơn vị tư vấn và các phòng, ban có liên quan chịu trách nhiệm thi hành Quyết định này./.</span>
                     </div>
                     
@@ -1007,8 +1051,8 @@
                             </div>
                         </div>
                         <div class="document-signature">
-                            <div class="document-signature-title">SƯ ĐOÀN TRƯỞNG</div>
-                            <div class="document-signature-name">Đại tá Bùi Thế Tài</div>
+                            <div class="document-signature-title" style="font-size: 14pt;">SƯ ĐOÀN TRƯỞNG</div>
+                            <div class="document-signature-name" style="font-size: 14pt;">Đại tá Bùi Thế Tài</div>
                         </div>
                     </div>
                 `;
@@ -1043,13 +1087,15 @@
                 inputForm.style.display = 'block';
                 previewContainer.style.display = 'none';
             });
+            
             // Xem kho lưu trữ từ nút trong phần xem trước
-viewStorageFromPreview.addEventListener('click', function() {
-    inputForm.style.display = 'none';
-    previewContainer.style.display = 'none';
-    storageContainer.style.display = 'block';
-    renderStorageReports();
-});
+            viewStorageFromPreview.addEventListener('click', function() {
+                inputForm.style.display = 'none';
+                previewContainer.style.display = 'none';
+                storageContainer.style.display = 'block';
+                renderStorageReports();
+            });
+            
             // Tải xuống file Word
             downloadButton.addEventListener('click', function() {
                 const content = documentContent.innerHTML;
@@ -1062,28 +1108,38 @@ viewStorageFromPreview.addEventListener('click', function() {
                         <meta charset="UTF-8">
                         <title>Báo Cáo Thầu Xây Dựng</title>
                         <style>
+                            @page {
+                                size: A4;
+                                margin: 1cm;
+                            }
                             body {
                                 font-family: 'Times New Roman', serif;
                                 line-height: 1.6;
                                 font-size: 14pt;
-                                margin: 1in;
+                                margin: 0;
+                                padding: 0;
+                                width: 100%;
+                                text-align: left;
                             }
                             .document-header {
                                 display: flex;
                                 justify-content: space-between;
                                 margin-bottom: 20pt;
+                                width: 100%;
                             }
                             .document-header-left, .document-header-right {
                                 width: 48%;
                             }
                             .document-header-left div, .document-header-right div {
                                 margin-bottom: 5px;
+                                font-size: 13pt;
                             }
                             .document-republic {
                                 text-align: center;
                                 font-weight: bold;
                                 text-transform: uppercase;
                                 margin-bottom: 5pt;
+                                font-size: 13pt;
                             }
                             .document-independence {
                                 text-align: center;
@@ -1121,6 +1177,7 @@ viewStorageFromPreview.addEventListener('click', function() {
                                 text-align: justify;
                                 margin-bottom: 10pt;
                                 font-style: italic;
+                                text-indent: 1cm;
                             }
                             .document-decision {
                                 text-align: center;
@@ -1131,6 +1188,7 @@ viewStorageFromPreview.addEventListener('click', function() {
                             .document-article {
                                 text-align: justify;
                                 margin-bottom: 10pt;
+                                text-indent: 1cm;
                             }
                             .document-article-title {
                                 font-weight: bold;
@@ -1143,6 +1201,7 @@ viewStorageFromPreview.addEventListener('click', function() {
                                 display: flex;
                                 justify-content: space-between;
                                 margin-top: 30px;
+                                width: 100%;
                             }
                             .document-recipient, .document-signature {
                                 width: 48%;
@@ -1153,22 +1212,31 @@ viewStorageFromPreview.addEventListener('click', function() {
                             }
                             .document-recipient-list {
                                 margin-left: 20px;
+                                font-size: 11pt;
                             }
                             .document-signature-title {
                                 text-transform: uppercase;
                                 font-weight: bold;
                                 text-align: center;
                                 margin-top: 50px;
+                                font-size: 14pt;
                             }
                             .document-signature-name {
                                 text-align: center;
                                 font-weight: bold;
                                 margin-top: 50px;
+                                font-size: 14pt;
                             }
-                            @media print {
-                                body {
-                                    margin: 0.5in;
-                                }
+                            p {
+                                text-align: justify;
+                                text-indent: 1cm;
+                                margin-bottom: 10pt;
+                            }
+                            .left-align {
+                                text-align: left;
+                            }
+                            .text-indent {
+                                text-indent: 1cm;
                             }
                         </style>
                     </head>
