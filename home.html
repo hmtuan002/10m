@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -100,7 +102,7 @@
         .document-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20pt;
+            margin-bottom: 0;
         }
         
         .document-header-left, .document-header-right {
@@ -117,12 +119,14 @@
             text-transform: uppercase;
             margin-bottom: 5pt;
             font-size: 13pt !important;
+            /* Đã sửa: Bỏ gạch chân */
         }
         
         .document-independence {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 20pt;
+            margin-bottom: 0; /* Đã sửa: Giảm spacing after thành 0px */
+            text-decoration: underline;
         }
         
         .document-number {
@@ -130,37 +134,34 @@
         }
         
         .document-location-date {
-            text-align: right;
+            text-align: center;
         }
         
         .document-title {
             text-align: center;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 10pt;
         }
         
         .document-project {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 20pt;
+
         }
         
         .document-subtitle {
             text-align: center;
-            margin-bottom: 10pt;
         }
         
         .document-commander {
             text-align: center;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 10pt;
         }
         
         .document-basis {
             text-align: justify;
-            margin-bottom: 10pt;
+            margin-bottom: 6px;
             font-style: italic;
         }
         
@@ -189,7 +190,7 @@
         .document-footer {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            margin-top: 0;
         }
         
         .document-recipient, .document-signature {
@@ -199,11 +200,13 @@
         .document-recipient-title {
             font-weight: bold;
             margin-bottom: 10px;
+            font-style: italic;
+            font-size: 15px;
         }
         
         .document-recipient-list {
             margin-left: 20px;
-            font-size: 11pt !important;
+            font-size: 11px !important;
         }
         
         .document-signature-title {
@@ -466,6 +469,97 @@
         /* Đảm bảo các đoạn văn có thụt đầu dòng */
         .text-indent {
             text-indent: 1cm;
+        }
+        
+        /* Style cho bảng trong header */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 0;
+        }
+        
+        .header-table td {
+            vertical-align: top;
+            padding: 0;
+            border: none;
+            height: 15pt;
+        }
+        
+        .header-left {
+            width: 27%; /* Đã sửa: Giảm kích thước cột trái còn 2/3 (40% * 2/3 ≈ 27%) */
+            text-align: center; /* Đã sửa: Căn giữa toàn bộ nội dung */
+        }
+        
+        .header-middle {
+            width: 5%;
+            text-align: center;
+        }
+        
+        .header-right {
+            width: 68%; /* Đã sửa: Tăng kích thước cột phải để bù lại */
+            text-align: right;
+        }
+        
+        /* Style cho bảng trong footer */
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-top: 0;
+        }
+        
+        .footer-table td {
+            vertical-align: top;
+            padding: 0;
+            border: none;
+            height: 15pt;
+        }
+        
+        .footer-left {
+            width: 50%;
+            text-align: left;
+        }
+        
+        .footer-middle {
+            width: 10%;
+            text-align: center;
+        }
+        
+        .footer-right {
+            width: 40%;
+            text-align: right;
+        }
+        
+        .footer-recipient {
+            margin-left: 13px;
+        }
+        
+        .footer-signature {
+            text-align: center;
+        }
+        
+        .signature-row {
+            height: 30pt;
+        }
+        
+        .signature-title {
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 40pt;
+        }
+        
+        .signature-name {
+            font-weight: bold;
+            font-size: 14pt;
+        }
+        
+        /* Style cho SƯ ĐOÀN 10 in đậm và gạch chân */
+        .division-name {
+            font-weight: bold;
+            text-decoration: underline;
+            text-align: center;
         }
     </style>
     <!-- Thêm thư viện html2pdf -->
@@ -800,18 +894,72 @@
                                 width: 100%;
                                 text-align: left;
                             }
-                            .document-header {
-                                display: flex;
-                                justify-content: space-between;
-                                margin-bottom: 20pt;
+                            .header-table {
                                 width: 100%;
+                                border-collapse: collapse;
+                                border: none;
+                                margin-bottom: 0;
                             }
-                            .document-header-left, .document-header-right {
-                                width: 48%;
+                            .header-table td {
+                                vertical-align: top;
+                                padding: 0;
+                                border: none;
+                                height: 15pt;
                             }
-                            .document-header-left div, .document-header-right div {
-                                margin-bottom: 5px;
-                                font-size: 13pt;
+                            .header-left {
+                                width: 27%;
+                                text-align: center;
+                            }
+                            .header-middle {
+                                width: 5%;
+                                text-align: center;
+                            }
+                            .header-right {
+                                width: 68%;
+                                text-align: right;
+                            }
+                            .footer-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                border: none;
+                                margin-top: 0;
+                            }
+                            .footer-table td {
+                                vertical-align: top;
+                                padding: 0;
+                                border: none;
+                                height: 15pt;
+                            }
+                            .footer-left {
+                                width: 50%;
+                                text-align: left;
+                            }
+                            .footer-middle {
+                                width: 10%;
+                                text-align: center;
+                            }
+                            .footer-right {
+                                width: 40%;
+                                text-align: right;
+                            }
+                            .footer-recipient {
+                                margin-left: 13px;
+                            }
+                            .footer-signature {
+                                text-align: center;
+                            }
+                            .signature-row {
+                                height: 30pt;
+                            }
+                            .signature-title {
+                                text-transform: uppercase;
+                                font-weight: bold;
+                                font-size: 14pt;
+                                margin-bottom: 40pt;
+                            }
+                            .signature-name {
+                                font-weight: bold;
+                                font-size: 14pt;
                             }
                             .document-republic {
                                 text-align: center;
@@ -823,38 +971,37 @@
                             .document-independence {
                                 text-align: center;
                                 font-weight: bold;
-                                margin-bottom: 20pt;
+                                margin-bottom: 0;
+                                text-decoration: underline;
                             }
                             .document-number {
                                 /* Viết thường in thường */
                             }
                             .document-location-date {
-                                text-align: right;
+                                text-align: center;
                             }
                             .document-title {
                                 text-align: center;
                                 font-weight: bold;
                                 text-transform: uppercase;
-                                margin-bottom: 10pt;
                             }
                             .document-project {
                                 text-align: center;
                                 font-weight: bold;
-                                margin-bottom: 20pt;
+
                             }
                             .document-subtitle {
                                 text-align: center;
-                                margin-bottom: 10pt;
+                                font-weight: bold;
                             }
                             .document-commander {
                                 text-align: center;
                                 font-weight: bold;
                                 text-transform: uppercase;
-                                margin-bottom: 10pt;
                             }
                             .document-basis {
-                                text-align: justify;
-                                margin-bottom: 10pt;
+                                text-align: left;
+                                margin-bottom: 6px;
                                 font-style: italic;
                                 text-indent: 1cm;
                             }
@@ -865,7 +1012,7 @@
                                 margin: 20pt 0 10pt;
                             }
                             .document-article {
-                                text-align: justify;
+                                text-align: left;
                                 margin-bottom: 10pt;
                                 text-indent: 1cm;
                             }
@@ -876,38 +1023,8 @@
                             .document-article-content {
                                 display: inline;
                             }
-                            .document-footer {
-                                display: flex;
-                                justify-content: space-between;
-                                margin-top: 30px;
-                                width: 100%;
-                            }
-                            .document-recipient, .document-signature {
-                                width: 48%;
-                            }
-                            .document-recipient-title {
-                                font-weight: bold;
-                                margin-bottom: 10px;
-                            }
-                            .document-recipient-list {
-                                margin-left: 20px;
-                                font-size: 11pt;
-                            }
-                            .document-signature-title {
-                                text-transform: uppercase;
-                                font-weight: bold;
-                                text-align: center;
-                                margin-top: 50px;
-                                font-size: 14pt;
-                            }
-                            .document-signature-name {
-                                text-align: center;
-                                font-weight: bold;
-                                margin-top: 50px;
-                                font-size: 14pt;
-                            }
                             p {
-                                text-align: justify;
+                                text-align: left;
                                 text-indent: 1cm;
                                 margin-bottom: 10pt;
                             }
@@ -916,6 +1033,21 @@
                             }
                             .text-indent {
                                 text-indent: 1cm;
+                            }
+                            .division-name {
+                                font-weight: bold;
+                                text-decoration: underline;
+                                text-align: center;
+                            }
+                            .document-recipient-title {
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                                font-style: italic;
+                                font-size: 15px;
+                            }
+                            .document-recipient-list {
+                                margin-left: 20px;
+                                font-size: 11px !important;
                             }
                         </style>
                     </head>
@@ -965,42 +1097,73 @@
                 
                 // Tạo nội dung báo cáo với bố cục mới
                 const reportContent = `
-                    <div class="document-header">
-                        <div class="document-header-left header-left-content">
-                            <div style="text-transform: uppercase; font-size: 13pt;">QUÂN ĐOÀN 34</div>
-                            <div style="text-transform: uppercase; font-size: 13pt;">SƯ ĐOÀN 10</div>
-                            <div class="document-number" style="font-size: 13pt;">Số: ${decisionNumber}</div>
-                        </div>
-                        <div class="document-header-right header-right-content">
-                            <div class="document-republic" style="font-size: 13pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
-                            <div class="document-independence" style="font-size: 13pt;">Độc lập - Tự do - Hạnh phúc</div>
-                            <div class="document-location-date" style="font-size: 13pt;">Quảng Ngãi, ${formattedDate}</div>
-                        </div>
-                    </div>
+                    <table class="header-table">
+                        <tr>
+                            <td class="header-left">
+                                <div style="text-transform: uppercase; font-size: 13pt;">QUÂN ĐOÀN 34</div>
+                                <div class="division-name" style="font-size: 13pt;">SƯ ĐOÀN 10</div>
+                                <div class="document-number" style="font-size: 10pt;">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                                <div class="document-number" style="font-size: 13pt;">Số: ${decisionNumber}</div>
+                            </td>
+                            <td class="header-middle"></td>
+                            <td class="header-right">
+                                <div class="document-republic" style="font-size: 13pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                                <div class="document-independence" style="font-size: 13pt;">Độc lập - Tự do - Hạnh phúc</div>
+                                <div class="document-number" style="font-size: 10pt;">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                                <div class="document-location-date" style="font-size: 13pt;">Quảng Ngãi, ${formattedDate}</div>
+                            </td>
+                        </tr>
+                    </table>
                     
+                    <div class="document-title">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                     
                     <div class="document-title">QUYẾT ĐỊNH</div>
                     
                     <div class="document-project">V/v phê duyệt kết quả lựa chọn nhà thầu gói thầu ${packageCode}</div>
                     
                     <div class="document-subtitle">Dự án: ${projectName}</div>
                     
+                    <div class="document-commander">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                    
                     <div class="document-commander">SƯ ĐOÀN TRƯỞNG SƯ ĐOÀN 10</div>
                     
-                    <div class="document-basis text-indent">
+                    <div class="document-commander">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                    
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ Luật Đầu tư công ngày 29/11/2024;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ Luật Quản lý, bảo vệ công trình quốc phòng và khu quân sự ngày 24/11/2023;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ Luật số 57/2024/QH15 ngày 29/11/2024 sửa đổi, bổ sung một số điều của Luật Quy hoạch, Luật Đầu tư, Luật Đầu tư theo phương thức đối tác công tư và Luật Đấu thầu;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ Luật số 90/2025/QH15 ngày 25/6/2025 sửa đổi, bổ sung một số điều của Luật Đấu thầu, Luật Đầu tư theo phương thức đối tác công tư, Luật Hải quan, Luật Thuế giá trị gia tăng, Luật Thuế xuất khẩu, thuế nhập khẩu, Luật Đầu tư, Luật Đầu tư công, Luật Quản lý, sử dụng tài sản công;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ các Nghị định của Chính phủ: Số 85/2025/NĐ-CP ngày 08/4/2025 quy định chi tiết thi hành một số điều của Luật Đầu tư công; số 214/2025/NĐ-CP ngày 04/8/2025 quy định chi tiết một số điều và biện pháp thi hành Luật Đấu thầu về lựa chọn nhà thầu; Quyết định số 35/QĐ-TTg ngày 11/3/2025 ban hành Danh mục bí mật nhà nước trong lĩnh vực quốc phòng;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ các Thông tư của Bộ Tài chính: số 79/2025/TT-BTC ngày 4/8/2025 hướng dẫn việc cung cấp, đăng tải thông tin về đấu thầu và mẫu hồ sơ đấu thầu trên Hệ thống mạng đấu thầu Quốc gia; số 80/2025/TT-BTC ngày 8/8/2025 quy định chi tiết mẫu hồ sơ yêu cầu, báo cáo đánh giá, báo cáo thẩm định, kiểm tra, báo cáo tình hình thực hiện hoạt động đấu thầu;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ các Thông tư của Bộ Quốc phòng: số 05/2021/TT-BQP ngày 12/01/2021 Quy định một số nội dung về lựa chọn nhà thầu trong phạm vi quản lý của Bộ Quốc phòng; số 74/2023/TT-BQP ngày 11/10/2023 Sửa đổi, bổ sung một số điều của Thông tư số 05/2021/TT-BQP ngày 12/01/2021;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ Quyết định số 4660/QĐ-BQP ngày 8/10/2024 của Bộ trưởng Bộ Quốc phòng về việc phê duyệt chủ trương đầu tư dự án Doanh trại Trung đoàn bộ binh 24/Sư đoàn bộ binh 10 (Giai đoạn 2);<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ các Quyết định của Tư lệnh Quân đoàn: số 912/QĐ-QĐ ngày 23/10/2024 về việc phê duyệt dự án; số 1128/QĐ-QĐ ngày 25/8/2025 về việc phê duyệt thiết kế, dự toán xây dựng đợt 2; số 1129/QĐ-QĐ ngày 25/8/2025 về việc phê duyệt Kế hoạch lựa chọn nhà thầu đợt 5;<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Căn cứ biên bản thương thảo hợp đồng ngày 31 tháng 8 năm 2025,<br>
+                    </div>
+                    <div class="document-basis text-indent" sytle ="margin-top: 10pt">
                         Theo đề nghị của Ban QLDA tại Tờ trình số 1083/TTr-BQL ngày 01/9/2025 và Báo cáo thẩm định số 1084/BC-HCKT ngày 01/9/2025 của Phòng Hậu cần – Kỹ thuật,
                     </div>
                     
-                    <div class="document-decision">QUYẾT ĐỊNH</div>
+                    <div class="document-decision" sytle ="margin-top: 20pt; margin-bottom: 20pt">QUYẾT ĐỊNH</div>
                     
                     <div class="document-article text-indent">
                         <span class="document-article-title">Điều 1. </span><span class="document-article-content">Phê duyệt kết quả lựa chọn nhà thầu gói thầu ${packageCode}: ${packageName} thuộc dự án: ${projectName} với những nội dung sau:</span>
@@ -1037,24 +1200,36 @@
                         <span class="document-article-title">Điều 3. </span><span class="document-article-content">Quyết định này có hiệu lực kể từ ngày ký. Ban quản lý dự án, đơn vị tư vấn và các phòng, ban có liên quan chịu trách nhiệm thi hành Quyết định này./.</span>
                     </div>
                     
-                    <div class="document-footer">
-                        <div class="document-recipient">
-                            <div class="document-recipient-title">Nơi nhận:</div>
-                            <div class="document-recipient-list">
-                                <div>- Như điều 3;</div>
-                                <div>- Cục Tài chính/BQP;</div>
-                                <div>- Cục Doanh trại/TCHC-KT;</div>
-                                <div>- Phòng Doanh trại/CHC-KT;</div>
-                                <div>- Phòng Tài chính/QĐ34;</div>
-                                <div>- Kho bạc NN (Nere TT VĐT);</div>
-                                <div>- Lưu VT, DT. S10.</div>
-                            </div>
-                        </div>
-                        <div class="document-signature">
-                            <div class="document-signature-title" style="font-size: 14pt;">SƯ ĐOÀN TRƯỞNG</div>
-                            <div class="document-signature-name" style="font-size: 14pt;">Đại tá Bùi Thế Tài</div>
-                        </div>
+                    <div class="document-article text-indent">
+                        <span class="document-article-title">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</span><span class="document-article-content">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</span>
                     </div>
+                    
+                    <table class="footer-table">
+                        <tr>
+                            <td class="footer-left">
+                                <div class="document-recipient-title">Nơi nhận:</div>
+                                <div class="footer-recipient">
+                                    <div style ="font-size: 12 px">- Như điều 3;</div>
+                                    <div style ="font-size: 12 px">- Cục Tài chính/BQP;</div>
+                                    <div style ="font-size: 12 px">- Cục Doanh trại/TCHC-KT;</div>
+                                    <div style ="font-size: 12 px">- Phòng Doanh trại/CHC-KT;</div>
+                                    <div style ="font-size: 12 px">- Phòng Tài chính/QĐ34;</div>
+                                    <div style ="font-size: 12 px">- Kho bạc NN (Nere TT VĐT);</div>
+                                    <div style ="font-size: 12 px">- Lưu VT, DT. S10.</div>
+                                </div>
+                            </td>
+                            <td class="footer-middle"></td>
+                            <td class="footer-right">
+                                <div class="footer-signature">
+                                    <div class="signature-title">SƯ ĐOÀN TRƯỞNG</div>
+                                    <div class="signature-name">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                                    <div class="signature-name">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                                    <div class="signature-name">ㅤㅤㅤㅤㅤㅤㅤㅤㅤ</div>
+                                    <div class="signature-name">Đại tá Bùi Thế Tài</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 `;
                 
                 // Hiển thị báo cáo
@@ -1121,18 +1296,72 @@
                                 width: 100%;
                                 text-align: left;
                             }
-                            .document-header {
-                                display: flex;
-                                justify-content: space-between;
-                                margin-bottom: 20pt;
+                            .header-table {
                                 width: 100%;
+                                border-collapse: collapse;
+                                border: none;
+                                margin-bottom: 0;
                             }
-                            .document-header-left, .document-header-right {
-                                width: 48%;
+                            .header-table td {
+                                vertical-align: top;
+                                padding: 0;
+                                border: none;
+                                height: 15pt;
                             }
-                            .document-header-left div, .document-header-right div {
-                                margin-bottom: 5px;
-                                font-size: 13pt;
+                            .header-left {
+                                width: 27%;
+                                text-align: center;
+                            }
+                            .header-middle {
+                                width: 5%;
+                                text-align: center;
+                            }
+                            .header-right {
+                                width: 68%;
+                                text-align: right;
+                            }
+                            .footer-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                border: none;
+                                margin-top: 0;
+                            }
+                            .footer-table td {
+                                vertical-align: top;
+                                padding: 0;
+                                border: none;
+                                height: 15pt;
+                            }
+                            .footer-left {
+                                width: 50%;
+                                text-align: left;
+                            }
+                            .footer-middle {
+                                width: 10%;
+                                text-align: center;
+                            }
+                            .footer-right {
+                                width: 40%;
+                                text-align: right;
+                            }
+                            .footer-recipient {
+                                margin-left: 13px;
+                            }
+                            .footer-signature {
+                                text-align: center;
+                            }
+                            .signature-row {
+                                height: 30pt;
+                            }
+                            .signature-title {
+                                text-transform: uppercase;
+                                font-weight: bold;
+                                font-size: 14pt;
+                                margin-bottom: 40pt;
+                            }
+                            .signature-name {
+                                font-weight: bold;
+                                font-size: 14pt;
                             }
                             .document-republic {
                                 text-align: center;
@@ -1144,38 +1373,37 @@
                             .document-independence {
                                 text-align: center;
                                 font-weight: bold;
-                                margin-bottom: 20pt;
+                                margin-bottom: 0;
+                                text-decoration: underline;
                             }
                             .document-number {
                                 /* Viết thường in thường */
                             }
                             .document-location-date {
-                                text-align: right;
+                                text-align: center;
                             }
                             .document-title {
                                 text-align: center;
                                 font-weight: bold;
                                 text-transform: uppercase;
-                                margin-bottom: 10pt;
                             }
                             .document-project {
                                 text-align: center;
                                 font-weight: bold;
-                                margin-bottom: 20pt;
+
                             }
                             .document-subtitle {
                                 text-align: center;
-                                margin-bottom: 10pt;
+                                font-weight: bold;
                             }
                             .document-commander {
                                 text-align: center;
                                 font-weight: bold;
                                 text-transform: uppercase;
-                                margin-bottom: 10pt;
                             }
                             .document-basis {
-                                text-align: justify;
-                                margin-bottom: 10pt;
+                                text-align: left;
+                                margin-bottom: 6px;
                                 font-style: italic;
                                 text-indent: 1cm;
                             }
@@ -1186,7 +1414,7 @@
                                 margin: 20pt 0 10pt;
                             }
                             .document-article {
-                                text-align: justify;
+                                text-align: left;
                                 margin-bottom: 10pt;
                                 text-indent: 1cm;
                             }
@@ -1197,38 +1425,8 @@
                             .document-article-content {
                                 display: inline;
                             }
-                            .document-footer {
-                                display: flex;
-                                justify-content: space-between;
-                                margin-top: 30px;
-                                width: 100%;
-                            }
-                            .document-recipient, .document-signature {
-                                width: 48%;
-                            }
-                            .document-recipient-title {
-                                font-weight: bold;
-                                margin-bottom: 10px;
-                            }
-                            .document-recipient-list {
-                                margin-left: 20px;
-                                font-size: 11pt;
-                            }
-                            .document-signature-title {
-                                text-transform: uppercase;
-                                font-weight: bold;
-                                text-align: center;
-                                margin-top: 50px;
-                                font-size: 14pt;
-                            }
-                            .document-signature-name {
-                                text-align: center;
-                                font-weight: bold;
-                                margin-top: 50px;
-                                font-size: 14pt;
-                            }
                             p {
-                                text-align: justify;
+                                text-align: left;
                                 text-indent: 1cm;
                                 margin-bottom: 10pt;
                             }
@@ -1237,6 +1435,21 @@
                             }
                             .text-indent {
                                 text-indent: 1cm;
+                            }
+                            .division-name {
+                                font-weight: bold;
+                                text-decoration: underline;
+                                text-align: center;
+                            }
+                            .document-recipient-title {
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                                font-style: italic;
+                                font-size: 15px;
+                            }
+                            .document-recipient-list {
+                                margin-left: 20px;
+                                font-size: 11px !important;
                             }
                         </style>
                     </head>
