@@ -19,8 +19,22 @@ const mapData = {
   },
 };
 
-// Options for Player Colors... these are in the same order as our sprite sheet
+// Options for Player Colors - these are the purchasable skins
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
+const SKIN_PRICES = {
+  red: 5,
+  orange: 10,
+  yellow: 15,
+  green: 20,
+  purple: 25,
+};
+
+// Merchant position
+const MERCHANT = {
+  x: 12,
+  y: 4,
+  name: "SKIN MERCHANT",
+};
 
 //Misc Helpers
 function randomFromArray(array) {
@@ -32,46 +46,21 @@ function getKeyString(x, y) {
 
 function createName() {
   const prefix = randomFromArray([
-    "COOL",
-    "SUPER",
-    "HIP",
-    "SMUG",
-    "COOL",
-    "SILKY",
-    "GOOD",
-    "SAFE",
-    "DEAR",
-    "DAMP",
-    "WARM",
-    "RICH",
-    "LONG",
-    "DARK",
-    "SOFT",
-    "BUFF",
-    "DOPE",
+    "COOL", "SUPER", "HIP", "SMUG", "COOL", "SILKY", "GOOD", "SAFE", "DEAR", 
+    "DAMP", "WARM", "RICH", "LONG", "DARK", "SOFT", "BUFF", "DOPE",
   ]);
   const animal = randomFromArray([
-    "BEAR",
-    "DOG",
-    "CAT",
-    "FOX",
-    "LAMB",
-    "LION",
-    "BOAR",
-    "GOAT",
-    "VOLE",
-    "SEAL",
-    "PUMA",
-    "MULE",
-    "BULL",
-    "BIRD",
-    "BUG",
+    "BEAR", "DOG", "CAT", "FOX", "LAMB", "LION", "BOAR", "GOAT", "VOLE", 
+    "SEAL", "PUMA", "MULE", "BULL", "BIRD", "BUG",
   ]);
   return `${prefix} ${animal}`;
 }
 
-function isSolid(x,y) {
-
+function isSolid(x, y) {
+  // Check if position is merchant - merchant is not solid
+  if (x === MERCHANT.x && y === MERCHANT.y) {
+    return false;
+  }
   const blockedNextSpace = mapData.blockedSpaces[getKeyString(x, y)];
   return (
     blockedNextSpace ||
@@ -79,41 +68,25 @@ function isSolid(x,y) {
     x < mapData.minX ||
     y >= mapData.maxY ||
     y < mapData.minY
-  )
+  );
 }
 
 function getRandomSafeSpot() {
-  //We don't look things up by key here, so just return an x/y
   return randomFromArray([
-    { x: 1, y: 4 },
-    { x: 2, y: 4 },
-    { x: 1, y: 5 },
-    { x: 2, y: 6 },
-    { x: 2, y: 8 },
-    { x: 2, y: 9 },
-    { x: 4, y: 8 },
-    { x: 5, y: 5 },
-    { x: 5, y: 8 },
-    { x: 5, y: 10 },
-    { x: 5, y: 11 },
-    { x: 11, y: 7 },
-    { x: 12, y: 7 },
-    { x: 13, y: 7 },
-    { x: 13, y: 6 },
-    { x: 13, y: 8 },
-    { x: 7, y: 6 },
-    { x: 7, y: 7 },
-    { x: 7, y: 8 },
-    { x: 8, y: 8 },
-    { x: 10, y: 8 },
-    { x: 8, y: 8 },
-    { x: 11, y: 4 },
+    { x: 1, y: 4 }, { x: 2, y: 4 }, { x: 1, y: 5 }, { x: 2, y: 6 },
+    { x: 2, y: 8 }, { x: 2, y: 9 }, { x: 4, y: 8 }, { x: 5, y: 5 },
+    { x: 5, y: 8 }, { x: 5, y: 10 }, { x: 5, y: 11 }, { x: 11, y: 7 },
+    { x: 12, y: 7 }, { x: 13, y: 7 }, { x: 13, y: 6 }, { x: 13, y: 8 },
+    { x: 7, y: 6 }, { x: 7, y: 7 }, { x: 7, y: 8 }, { x: 8, y: 8 },
+    { x: 10, y: 8 }, { x: 8, y: 8 }, { x: 11, y: 4 },
   ]);
 }
 
+function getPurchasedSkinsFromFirebase(skins) {
+  return skins || { blue: true }; // blue is default and always owned
+}
 
 (function () {
-
   let playerId;
   let playerRef;
   let players = {};
@@ -123,8 +96,10 @@ function getRandomSafeSpot() {
 
   const gameContainer = document.querySelector(".game-container");
   const playerNameInput = document.querySelector("#player-name");
-  const playerColorButton = document.querySelector("#player-color");
-
+  const merchantModal = document.querySelector("#merchant-modal");
+  const closeModalBtn = document.querySelector("#close-modal");
+  const skinShopList = document.querySelector("#skin-shop-list");
+  const merchantMessage = document.querySelector("#merchant-message");
 
   function placeCoin() {
     const { x, y } = getRandomSafeSpot();
@@ -132,8 +107,7 @@ function getRandomSafeSpot() {
     coinRef.set({
       x,
       y,
-    })
-
+    });
     const coinTimeouts = [2000, 3000, 4000, 5000];
     setTimeout(() => {
       placeCoin();
@@ -143,20 +117,111 @@ function getRandomSafeSpot() {
   function attemptGrabCoin(x, y) {
     const key = getKeyString(x, y);
     if (coins[key]) {
-      // Remove this key from data, then uptick Player's coin count
       firebase.database().ref(`coins/${key}`).remove();
       playerRef.update({
         coins: players[playerId].coins + 1,
-      })
+      });
     }
   }
 
+  function openMerchantModal() {
+    renderSkinShop();
+    merchantModal.style.display = "flex";
+  }
 
-  function handleArrowPress(xChange=0, yChange=0) {
+  function closeMerchantModal() {
+    merchantModal.style.display = "none";
+  }
+
+  function renderSkinShop() {
+    const playerData = players[playerId];
+    if (!playerData) return;
+    
+    const purchasedSkins = getPurchasedSkinsFromFirebase(playerData.purchasedSkins);
+    const currentSkin = playerData.color;
+    const playerCoins = playerData.coins;
+    
+    skinShopList.innerHTML = "";
+    
+    playerColors.forEach((color) => {
+      const isOwned = purchasedSkins[color] === true;
+      const isCurrent = currentSkin === color;
+      const price = SKIN_PRICES[color] || 0;
+      
+      const skinItem = document.createElement("div");
+      skinItem.className = "skin-item";
+      skinItem.setAttribute("data-color", color);
+      
+      let statusText = "";
+      if (isCurrent) {
+        statusText = "CURRENT SKIN";
+      } else if (isOwned) {
+        statusText = "OWNED";
+      } else {
+        statusText = `${price} COINS`;
+      }
+      
+      skinItem.innerHTML = `
+        <div class="skin-preview Character" data-color="${color}" data-direction="right">
+          <div class="Character_shadow grid-cell"></div>
+          <div class="Character_sprite grid-cell"></div>
+        </div>
+        <div class="skin-name">${color.toUpperCase()}</div>
+        <button class="skin-buy-btn" data-color="${color}" ${isCurrent ? "disabled" : ""}>
+          ${statusText}
+        </button>
+      `;
+      
+      const buyBtn = skinItem.querySelector(".skin-buy-btn");
+      if (!isCurrent) {
+        buyBtn.addEventListener("click", () => {
+          if (isOwned) {
+            // Equip owned skin
+            playerRef.update({
+              color: color,
+            });
+            merchantMessage.textContent = `Equipped ${color} skin!`;
+            setTimeout(() => {
+              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+            }, 2000);
+            renderSkinShop();
+          } else if (playerCoins >= price) {
+            // Purchase new skin
+            const updatedSkins = { ...purchasedSkins, [color]: true };
+            playerRef.update({
+              purchasedSkins: updatedSkins,
+              coins: playerCoins - price,
+              color: color,
+            });
+            merchantMessage.textContent = `Purchased ${color} skin for ${price} coins!`;
+            setTimeout(() => {
+              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+            }, 2000);
+            renderSkinShop();
+          } else {
+            merchantMessage.textContent = `Not enough coins! Need ${price - playerCoins} more coins.`;
+            setTimeout(() => {
+              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+            }, 2000);
+          }
+        });
+      }
+      
+      skinShopList.appendChild(skinItem);
+    });
+  }
+
+  function checkMerchantInteraction() {
+    const playerData = players[playerId];
+    if (playerData && playerData.x === MERCHANT.x && playerData.y === MERCHANT.y) {
+      openMerchantModal();
+    }
+  }
+
+  function handleArrowPress(xChange = 0, yChange = 0) {
     const newX = players[playerId].x + xChange;
     const newY = players[playerId].y + yChange;
     if (!isSolid(newX, newY)) {
-      //move to the next space
       players[playerId].x = newX;
       players[playerId].y = newY;
       if (xChange === 1) {
@@ -167,44 +232,62 @@ function getRandomSafeSpot() {
       }
       playerRef.set(players[playerId]);
       attemptGrabCoin(newX, newY);
+      checkMerchantInteraction();
     }
   }
 
-  function initGame() {
+  function createMerchantElement() {
+    const merchantElement = document.createElement("div");
+    merchantElement.classList.add("Character", "grid-cell", "merchant");
+    merchantElement.innerHTML = `
+      <div class="Character_shadow grid-cell"></div>
+      <div class="Character_sprite grid-cell"></div>
+      <div class="Character_name-container">
+        <span class="Character_name">${MERCHANT.name}</span>
+      </div>
+    `;
+    merchantElement.setAttribute("data-color", "purple");
+    merchantElement.setAttribute("data-direction", "right");
+    const left = 16 * MERCHANT.x + "px";
+    const top = 16 * MERCHANT.y - 4 + "px";
+    merchantElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+    gameContainer.appendChild(merchantElement);
+  }
 
-    new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1))
-    new KeyPressListener("ArrowDown", () => handleArrowPress(0, 1))
-    new KeyPressListener("ArrowLeft", () => handleArrowPress(-1, 0))
-    new KeyPressListener("ArrowRight", () => handleArrowPress(1, 0))
+  function initGame() {
+    new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1));
+    new KeyPressListener("ArrowDown", () => handleArrowPress(0, 1));
+    new KeyPressListener("ArrowLeft", () => handleArrowPress(-1, 0));
+    new KeyPressListener("ArrowRight", () => handleArrowPress(1, 0));
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allCoinsRef = firebase.database().ref(`coins`);
 
     allPlayersRef.on("value", (snapshot) => {
-      //Fires whenever a change occurs
       players = snapshot.val() || {};
       Object.keys(players).forEach((key) => {
         const characterState = players[key];
         let el = playerElements[key];
-        // Now update the DOM
-        el.querySelector(".Character_name").innerText = characterState.name;
-        el.querySelector(".Character_coins").innerText = characterState.coins;
-        el.setAttribute("data-color", characterState.color);
-        el.setAttribute("data-direction", characterState.direction);
-        const left = 16 * characterState.x + "px";
-        const top = 16 * characterState.y - 4 + "px";
-        el.style.transform = `translate3d(${left}, ${top}, 0)`;
-      })
-    })
+        if (el) {
+          el.querySelector(".Character_name").innerText = characterState.name;
+          el.querySelector(".Character_coins").innerText = characterState.coins;
+          el.setAttribute("data-color", characterState.color);
+          el.setAttribute("data-direction", characterState.direction);
+          const left = 16 * characterState.x + "px";
+          const top = 16 * characterState.y - 4 + "px";
+          el.style.transform = `translate3d(${left}, ${top}, 0)`;
+        }
+      });
+    });
+
     allPlayersRef.on("child_added", (snapshot) => {
-      //Fires whenever a new node is added the tree
       const addedPlayer = snapshot.val();
       const characterElement = document.createElement("div");
       characterElement.classList.add("Character", "grid-cell");
       if (addedPlayer.id === playerId) {
         characterElement.classList.add("you");
       }
-      characterElement.innerHTML = (`
+      characterElement.innerHTML = `
         <div class="Character_shadow grid-cell"></div>
         <div class="Character_sprite grid-cell"></div>
         <div class="Character_name-container">
@@ -212,10 +295,8 @@ function getRandomSafeSpot() {
           <span class="Character_coins">0</span>
         </div>
         <div class="Character_you-arrow"></div>
-      `);
+      `;
       playerElements[addedPlayer.id] = characterElement;
-
-      //Fill in some initial state
       characterElement.querySelector(".Character_name").innerText = addedPlayer.name;
       characterElement.querySelector(".Character_coins").innerText = addedPlayer.coins;
       characterElement.setAttribute("data-color", addedPlayer.color);
@@ -224,116 +305,95 @@ function getRandomSafeSpot() {
       const top = 16 * addedPlayer.y - 4 + "px";
       characterElement.style.transform = `translate3d(${left}, ${top}, 0)`;
       gameContainer.appendChild(characterElement);
-    })
+    });
 
-
-    //Remove character DOM element after they leave
     allPlayersRef.on("child_removed", (snapshot) => {
       const removedKey = snapshot.val().id;
-      gameContainer.removeChild(playerElements[removedKey]);
-      delete playerElements[removedKey];
-    })
+      if (playerElements[removedKey]) {
+        gameContainer.removeChild(playerElements[removedKey]);
+        delete playerElements[removedKey];
+      }
+    });
 
-
-    //New - not in the video!
-    //This block will remove coins from local state when Firebase `coins` value updates
     allCoinsRef.on("value", (snapshot) => {
       coins = snapshot.val() || {};
     });
-    //
 
     allCoinsRef.on("child_added", (snapshot) => {
       const coin = snapshot.val();
       const key = getKeyString(coin.x, coin.y);
       coins[key] = true;
-
-      // Create the DOM Element
       const coinElement = document.createElement("div");
       coinElement.classList.add("Coin", "grid-cell");
       coinElement.innerHTML = `
         <div class="Coin_shadow grid-cell"></div>
         <div class="Coin_sprite grid-cell"></div>
       `;
-
-      // Position the Element
       const left = 16 * coin.x + "px";
       const top = 16 * coin.y - 4 + "px";
       coinElement.style.transform = `translate3d(${left}, ${top}, 0)`;
-
-      // Keep a reference for removal later and add to DOM
       coinElements[key] = coinElement;
       gameContainer.appendChild(coinElement);
-    })
+    });
+
     allCoinsRef.on("child_removed", (snapshot) => {
-      const {x,y} = snapshot.val();
-      const keyToRemove = getKeyString(x,y);
-      gameContainer.removeChild( coinElements[keyToRemove] );
-      delete coinElements[keyToRemove];
-    })
+      const { x, y } = snapshot.val();
+      const keyToRemove = getKeyString(x, y);
+      if (coinElements[keyToRemove]) {
+        gameContainer.removeChild(coinElements[keyToRemove]);
+        delete coinElements[keyToRemove];
+      }
+    });
 
-
-    //Updates player name with text input
     playerNameInput.addEventListener("change", (e) => {
       const newName = e.target.value || createName();
       playerNameInput.value = newName;
       playerRef.update({
-        name: newName
-      })
-    })
+        name: newName,
+      });
+    });
 
-    //Update player color on button click
-    playerColorButton.addEventListener("click", () => {
-      const mySkinIndex = playerColors.indexOf(players[playerId].color);
-      const nextColor = playerColors[mySkinIndex + 1] || playerColors[0];
-      playerRef.update({
-        color: nextColor
-      })
-    })
+    closeModalBtn.addEventListener("click", closeMerchantModal);
+    window.addEventListener("click", (e) => {
+      if (e.target === merchantModal) {
+        closeMerchantModal();
+      }
+    });
 
-    //Place my first coin
+    createMerchantElement();
     placeCoin();
-
   }
 
   firebase.auth().onAuthStateChanged((user) => {
-    console.log(user)
+    console.log(user);
     if (user) {
-      //You're logged in!
       playerId = user.uid;
       playerRef = firebase.database().ref(`players/${playerId}`);
 
       const name = createName();
       playerNameInput.value = name;
 
-      const {x, y} = getRandomSafeSpot();
-
+      const { x, y } = getRandomSafeSpot();
 
       playerRef.set({
         id: playerId,
         name,
         direction: "right",
-        color: randomFromArray(playerColors),
+        color: "blue", // Default color only
         x,
         y,
         coins: 0,
-      })
+        purchasedSkins: { blue: true }, // Track purchased skins
+      });
 
-      //Remove me from Firebase when I diconnect
       playerRef.onDisconnect().remove();
-
-      //Begin the game now that we are signed in
       initGame();
-    } else {
-      //You're logged out.
     }
-  })
+  });
 
   firebase.auth().signInAnonymously().catch((error) => {
     var errorCode = error.code;
     var errorMessage = error.message;
-    // ...
     console.log(errorCode, errorMessage);
   });
-
-
 })();
