@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Multiplayer Demo</title>
+    <title>Multiplayer Demo - Skin Shop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
@@ -15,8 +15,21 @@
         <label for="player-name">Your Name</label>
         <input id="player-name" maxlength="10" type="text" />
       </div>
-      <div>
-        <button id="player-color">Change Color</button>
+    </div>
+
+    <!-- Merchant Modal -->
+    <div id="merchant-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🎨 SKIN MERCHANT 🎨</h2>
+          <span id="close-modal" class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p id="merchant-message" class="merchant-message">Welcome! Buy skins with your coins!</p>
+          <div class="skin-shop-grid" id="skin-shop-list">
+            <!-- Skins will be dynamically added here -->
+          </div>
+        </div>
       </div>
     </div>
 
@@ -24,7 +37,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-      // NOTE - INCLUDE YOUR FIREBASE CONFIG HERE FOR ANYTHING TO WORK:
       const firebaseConfig = {
         apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
         authDomain: "vvss-b7a49.firebaseapp.com",
@@ -37,7 +49,6 @@
       };
       firebase.initializeApp(firebaseConfig);
     </script>
-
 
     <script src="KeyPressListener.js"></script>
     <script src="app.js"></script>
