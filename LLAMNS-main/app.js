@@ -22,11 +22,11 @@ const mapData = {
 // Options for Player Colors - these are the purchasable skins
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 const SKIN_PRICES = {
-  red: 5,
-  orange: 10,
-  yellow: 15,
-  green: 20,
-  purple: 25,
+  red: 10,
+  orange: 15,
+  yellow: 20,
+  green: 25,
+  purple: 30,
 };
 
 // Merchant position
@@ -83,7 +83,7 @@ function getRandomSafeSpot() {
 }
 
 function getPurchasedSkinsFromFirebase(skins) {
-  return skins || { blue: true }; // blue is default and always owned
+  return skins || { blue: true };
 }
 
 (function () {
@@ -96,10 +96,18 @@ function getPurchasedSkinsFromFirebase(skins) {
 
   const gameContainer = document.querySelector(".game-container");
   const playerNameInput = document.querySelector("#player-name");
+  const changeSkinButton = document.querySelector("#change-skin");
   const merchantModal = document.querySelector("#merchant-modal");
   const closeModalBtn = document.querySelector("#close-modal");
   const skinShopList = document.querySelector("#skin-shop-list");
   const merchantMessage = document.querySelector("#merchant-message");
+  const playerCoinsDisplay = document.querySelector("#player-coins");
+
+  function updatePlayerCoinsDisplay(coins) {
+    if (playerCoinsDisplay) {
+      playerCoinsDisplay.textContent = coins;
+    }
+  }
 
   function placeCoin() {
     const { x, y } = getRandomSafeSpot();
@@ -152,13 +160,18 @@ function getPurchasedSkinsFromFirebase(skins) {
       skinItem.className = "skin-item";
       skinItem.setAttribute("data-color", color);
       
-      let statusText = "";
+      let buttonText = "";
+      let buttonDisabled = false;
+      
       if (isCurrent) {
-        statusText = "CURRENT SKIN";
+        buttonText = "✓ EQUIPPED";
+        buttonDisabled = true;
       } else if (isOwned) {
-        statusText = "OWNED";
+        buttonText = "EQUIP";
+        buttonDisabled = false;
       } else {
-        statusText = `${price} COINS`;
+        buttonText = `BUY ${price} COINS`;
+        buttonDisabled = false;
       }
       
       skinItem.innerHTML = `
@@ -167,20 +180,20 @@ function getPurchasedSkinsFromFirebase(skins) {
           <div class="Character_sprite grid-cell"></div>
         </div>
         <div class="skin-name">${color.toUpperCase()}</div>
-        <button class="skin-buy-btn" data-color="${color}" ${isCurrent ? "disabled" : ""}>
-          ${statusText}
+        <button class="skin-buy-btn" data-color="${color}" ${buttonDisabled ? "disabled" : ""}>
+          ${buttonText}
         </button>
       `;
       
-      const buyBtn = skinItem.querySelector(".skin-buy-btn");
-      if (!isCurrent) {
-        buyBtn.addEventListener("click", () => {
+      const actionBtn = skinItem.querySelector(".skin-buy-btn");
+      if (!buttonDisabled) {
+        actionBtn.addEventListener("click", () => {
           if (isOwned) {
             // Equip owned skin
             playerRef.update({
               color: color,
             });
-            merchantMessage.textContent = `Equipped ${color} skin!`;
+            merchantMessage.textContent = `✨ Equipped ${color} skin! ✨`;
             setTimeout(() => {
               merchantMessage.textContent = "Welcome! Buy skins with your coins!";
             }, 2000);
@@ -193,13 +206,13 @@ function getPurchasedSkinsFromFirebase(skins) {
               coins: playerCoins - price,
               color: color,
             });
-            merchantMessage.textContent = `Purchased ${color} skin for ${price} coins!`;
+            merchantMessage.textContent = `🎉 Purchased ${color} skin for ${price} coins! 🎉`;
             setTimeout(() => {
               merchantMessage.textContent = "Welcome! Buy skins with your coins!";
             }, 2000);
             renderSkinShop();
           } else {
-            merchantMessage.textContent = `Not enough coins! Need ${price - playerCoins} more coins.`;
+            merchantMessage.textContent = `❌ Not enough coins! Need ${price - playerCoins} more coins. ❌`;
             setTimeout(() => {
               merchantMessage.textContent = "Welcome! Buy skins with your coins!";
             }, 2000);
@@ -353,6 +366,13 @@ function getPurchasedSkinsFromFirebase(skins) {
       });
     });
 
+    // Change Skin button - opens merchant modal
+    if (changeSkinButton) {
+      changeSkinButton.addEventListener("click", () => {
+        openMerchantModal();
+      });
+    }
+
     closeModalBtn.addEventListener("click", closeMerchantModal);
     window.addEventListener("click", (e) => {
       if (e.target === merchantModal) {
@@ -379,11 +399,19 @@ function getPurchasedSkinsFromFirebase(skins) {
         id: playerId,
         name,
         direction: "right",
-        color: "blue", // Default color only
+        color: "blue",
         x,
         y,
         coins: 0,
-        purchasedSkins: { blue: true }, // Track purchased skins
+        purchasedSkins: { blue: true },
+      });
+
+      // Listen for coin updates to display
+      playerRef.on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data && playerCoinsDisplay) {
+          updatePlayerCoinsDisplay(data.coins);
+        }
       });
 
       playerRef.onDisconnect().remove();
