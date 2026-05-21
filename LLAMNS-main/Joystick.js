@@ -6,20 +6,20 @@ class VirtualJoystick {
     this.active = false;
     this.center = { x: 0, y: 0 };
     this.vector = { x: 0, y: 0 };
-    this.radius = 50;
-    this.maxDist = 35;
+    this.maxDist = 45;
     
     this.initEvents();
   }
   
   initEvents() {
+    // Touch events cho mobile
     this.container.addEventListener('touchstart', (e) => {
       e.preventDefault();
       this.active = true;
       const rect = this.container.getBoundingClientRect();
       this.center = {
-        x: rect.left + rect.width/2,
-        y: rect.top + rect.height/2
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
       };
       this.updateThumb(e.touches[0]);
     });
@@ -34,14 +34,14 @@ class VirtualJoystick {
       this.reset();
     });
     
-    // Mouse support for debugging on PC
+    // Mouse events để debug trên PC
     this.container.addEventListener('mousedown', (e) => {
       e.preventDefault();
       this.active = true;
       const rect = this.container.getBoundingClientRect();
       this.center = {
-        x: rect.left + rect.width/2,
-        y: rect.top + rect.height/2
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
       };
       this.updateThumb(e);
     });
@@ -56,15 +56,16 @@ class VirtualJoystick {
   updateThumb(pointer) {
     const dx = pointer.clientX - this.center.x;
     const dy = pointer.clientY - this.center.y;
-    let dist = Math.sqrt(dx*dx + dy*dy);
-    let angle = Math.atan2(dy, dx);
+    let dist = Math.sqrt(dx * dx + dy * dy);
     
     if (dist > this.maxDist) dist = this.maxDist;
     
+    const angle = Math.atan2(dy, dx);
     const moveX = Math.cos(angle) * dist;
     const moveY = Math.sin(angle) * dist;
     
     this.thumb.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    
     this.vector = {
       x: moveX / this.maxDist,
       y: moveY / this.maxDist
@@ -75,7 +76,7 @@ class VirtualJoystick {
   
   reset() {
     this.active = false;
-    this.thumb.style.transform = `translate(0px, 0px)`;
+    this.thumb.style.transform = 'translate(0px, 0px)';
     this.vector = { x: 0, y: 0 };
     if (this.onMove) this.onMove(this.vector);
   }
