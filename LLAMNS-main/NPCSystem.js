@@ -1,12 +1,11 @@
 class NPCSystem {
-  constructor(npcData, canvas, getPlayerPosition, getPlayerSize) {
+  constructor(npcData, canvas, getPlayerPosition) {
     this.npc = npcData;
     this.canvas = canvas;
     this.getPlayerPosition = getPlayerPosition;
-    this.getPlayerSize = getPlayerSize || (() => 40);
     this.currentDialogIndex = 0;
     this.isDialogOpen = false;
-    this.interactionDistance = 60;
+    this.interactionDistance = 65;
     this.onTalkCallback = null;
     
     this.initUI();
@@ -24,6 +23,7 @@ class NPCSystem {
     
     if (this.nextBtn) this.nextBtn.onclick = () => this.nextDialog();
     if (this.closeBtn) this.closeBtn.onclick = () => this.closeDialog();
+    
     const closeBtn = document.getElementById('close-npc');
     if (closeBtn) closeBtn.onclick = () => this.closeDialog();
   }
@@ -50,9 +50,9 @@ class NPCSystem {
     const dialogs = this.npc.dialogs;
     if (this.currentDialogIndex < dialogs.length) {
       if (this.dialogText) this.dialogText.innerText = dialogs[this.currentDialogIndex];
-      if (this.progressSpan) this.progressSpan.innerText = `${this.currentDialogIndex + 1}/${dialogs.length}`;
+      if (this.progressSpan) this.progressSpan.innerText = this.currentDialogIndex + 1 + '/' + dialogs.length;
       if (this.nextBtn) {
-        this.nextBtn.innerText = this.currentDialogIndex === dialogs.length - 1 ? '🏁 Kết thúc' : '➡ Tiếp';
+        this.nextBtn.innerText = (this.currentDialogIndex === dialogs.length - 1) ? '🏁 Kết thúc' : '➡ Tiếp';
       }
     } else {
       this.closeDialog();
@@ -100,15 +100,15 @@ class NPCSystem {
     ctx.save();
     ctx.shadowBlur = 0;
     
-    // Vẽ vòng tròn tương tác
+    // Vẽ vùng tương tác (mờ)
     ctx.beginPath();
-    ctx.arc(this.npc.x, this.npc.y, this.interactionDistance, 0, 2 * Math.PI);
+    ctx.arc(this.npc.x, this.npc.y, this.interactionDistance, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(212, 163, 115, 0.1)';
     ctx.fill();
     
     // Vẽ thân NPC
     ctx.beginPath();
-    ctx.arc(this.npc.x, this.npc.y, 25, 0, 2 * Math.PI);
+    ctx.arc(this.npc.x, this.npc.y, 28, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(212, 163, 115, 0.9)';
     ctx.fill();
     ctx.strokeStyle = '#8b5a2b';
@@ -116,16 +116,26 @@ class NPCSystem {
     ctx.stroke();
     
     // Vẽ icon nón lá
-    ctx.font = '32px Arial';
+    ctx.font = '36px Arial';
     ctx.fillStyle = '#4a2c1a';
-    ctx.fillText('👒', this.npc.x - 16, this.npc.y + 12);
+    ctx.fillText('👒', this.npc.x - 18, this.npc.y + 12);
     
-    // Vẽ tên
+    // Vẽ tên NPC
     ctx.font = 'bold 12px "Source Sans Pro"';
-    ctx.fillStyle = '#fff';
-    ctx.shadowBlur = 2;
+    ctx.fillStyle = '#ffffff';
     ctx.shadowColor = 'black';
-    ctx.fillText(this.npc.name, this.npc.x - 30, this.npc.y - 28);
+    ctx.shadowBlur = 3;
+    ctx.fillText(this.npc.name, this.npc.x - 40, this.npc.y - 32);
+    
+    // Nếu đang trò chuyện, vẽ bong bóng
+    if (this.isDialogOpen) {
+      ctx.beginPath();
+      ctx.moveTo(this.npc.x, this.npc.y - 18);
+      ctx.lineTo(this.npc.x - 8, this.npc.y - 28);
+      ctx.lineTo(this.npc.x + 8, this.npc.y - 28);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fill();
+    }
     
     ctx.restore();
   }
