@@ -21,7 +21,94 @@ html, body {
   transform: scale(3);
   image-rendering: pixelated;
 }
+/* Add to existing styles.css */
 
+/* NPC Dialog */
+.npc-dialog .modal-content {
+  max-width: 400px;
+  background: linear-gradient(135deg, #2c3e2f, #1a2a1a);
+  color: #f5e6d3;
+  border: 3px solid #d4a373;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.npc-avatar {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.npc-text {
+  background: rgba(0,0,0,0.7);
+  padding: 15px;
+  border-radius: 15px;
+  min-height: 100px;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+
+.npc-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.npc-btn {
+  background: #d4a373;
+  color: #2c3e2f;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.npc-btn:hover {
+  transform: scale(1.05);
+  background: #f4a261;
+}
+
+/* Interaction button */
+.interact-btn {
+  position: fixed;
+  bottom: 50%;
+  right: 30px;
+  transform: translateY(-50%);
+  z-index: 1000;
+}
+
+#talk-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+#talk-btn:hover {
+  background: #45a049;
+}
+
+/* Game canvas */
+#gameCanvas {
+  border: 2px solid #333;
+  background: #2c5f2d;
+  display: block;
+  margin: 0 auto;
+  cursor: crosshair;
+}
 .player-info {
   position: absolute;
   top: 0;
