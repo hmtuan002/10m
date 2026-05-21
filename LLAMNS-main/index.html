@@ -1,211 +1,460 @@
-<html>
-  <head>
-    <title>Multiplayer Demo - Skin Shop</title>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Game Đa Người Chơi - Nón Lá Việt Nam</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css" type="text/css">
+    <link rel="stylesheet" href="styles.css">
     <style>
-      /* Thêm style cho NPC Dialog */
-      .npc-dialog .modal-content {
-        max-width: 400px;
-        background: linear-gradient(135deg, #2c3e2f, #1a2a1a);
-        color: #f5e6d3;
-        border: 3px solid #d4a373;
-      }
-      .npc-avatar {
-        text-align: center;
-        margin-bottom: 15px;
-      }
-      .npc-avatar img {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        border: 2px solid #d4a373;
-      }
-      .npc-text {
-        background: rgba(0,0,0,0.7);
-        padding: 15px;
-        border-radius: 15px;
-        min-height: 100px;
-        font-size: 16px;
-        line-height: 1.5;
-        margin: 10px 0;
-      }
-      .npc-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-      }
-      .npc-btn {
-        background: #d4a373;
-        color: #2c3e2f;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 25px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      .npc-btn:hover {
-        transform: scale(1.05);
-        background: #f4a261;
-      }
-      #npc-progress {
-        font-size: 12px;
-        text-align: center;
-        margin-top: 10px;
-        color: #d4a373;
-      }
-      
-      /* Thêm style cho nút tương tác */
-      .interact-btn {
-        position: fixed;
-        bottom: 30%;
-        right: 30px;
-        z-index: 1000;
-      }
-      #talk-btn {
-        background: #4caf50;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 50px;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        animation: pulse 1.5s infinite;
-      }
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-      }
-      
-      /* Thêm style cho Joystick (chỉ hiện trên mobile) */
-      .joystick-container {
-        position: fixed;
-        bottom: 30px;
-        left: 30px;
-        width: 120px;
-        height: 120px;
-        border-radius: 60px;
-        background: rgba(0,0,0,0.5);
-        touch-action: none;
-        display: none;
-        z-index: 200;
-      }
-      .joystick-base {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 60px;
-        background: rgba(255,255,255,0.2);
-      }
-      .joystick-thumb {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        border-radius: 25px;
-        background: rgba(255,255,255,0.8);
-        top: 35px;
-        left: 35px;
-        transition: transform 0.05s;
-      }
-      @media (max-width: 768px) {
-        .joystick-container { display: block; }
-      }
+        /* Reset và style cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: linear-gradient(135deg, #1a472a, #0e2a1a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-container {
+            position: relative;
+            display: inline-block;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            display: block;
+            cursor: crosshair;
+            background: #2c5f2d;
+        }
+
+        /* Player Info Panel */
+        .player-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 15px;
+            color: white;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+            border: 1px solid rgba(255,215,0,0.3);
+            font-weight: bold;
+        }
+
+        .player-info label {
+            font-size: 12px;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .player-info input {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,215,0,0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 120px;
+        }
+
+        .player-info button {
+            background: linear-gradient(135deg, #f9a825, #f57c00);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .player-info button:hover {
+            transform: scale(1.05);
+        }
+
+        .coin-display {
+            background: rgba(0,0,0,0.6);
+            padding: 5px 15px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin-amount {
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* Modal chung */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e2f, #1a2a1a);
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            color: #f5e6d3;
+            border: 2px solid #d4a373;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #d4a373;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .close:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* Skin Shop */
+        .skin-shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .skin-item {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .skin-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .skin-item button {
+            background: #d4a373;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .skin-item button:hover:not(:disabled) {
+            background: #f4a261;
+            transform: scale(1.05);
+        }
+
+        .skin-item button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        /* NPC Dialog */
+        .npc-dialog .modal-content {
+            max-width: 450px;
+        }
+
+        .npc-avatar {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .npc-avatar img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #d4a373;
+            background: #2c3e2f;
+        }
+
+        .npc-text {
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 120px;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .npc-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .npc-btn {
+            background: #d4a373;
+            color: #2c3e2f;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .npc-btn:hover {
+            transform: scale(1.05);
+            background: #f4a261;
+        }
+
+        #npc-progress {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 15px;
+            color: #d4a373;
+        }
+
+        /* Interaction Button */
+        .interact-btn {
+            position: fixed;
+            bottom: 30%;
+            right: 20px;
+            z-index: 200;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-10px); }
+        }
+
+        #talk-btn {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        #talk-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #5cb860, #3e9142);
+        }
+
+        /* Mobile Joystick */
+        .joystick-container {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 130px;
+            height: 130px;
+            border-radius: 65px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            touch-action: none;
+            display: none;
+            z-index: 200;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .joystick-base {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 65px;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .joystick-thumb {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            border-radius: 27px;
+            background: rgba(255,255,255,0.9);
+            top: 37px;
+            left: 37px;
+            transition: transform 0.05s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .joystick-container { display: block; }
+            .player-info {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .interact-btn { bottom: 25%; }
+            #talk-btn { padding: 12px 24px; font-size: 16px; }
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .instructions { display: none; }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
 
     <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
     </div>
+
+    <!-- Player Info -->
     <div class="player-info">
-      <div>
-        <label for="player-name">Your Name</label>
-        <input id="player-name" maxlength="10" type="text" />
-      </div>
-      <div>
-        <button id="change-skin">🎨 Change Skin</button>
-      </div>
-      <div class="coin-display">
-        <label>💰 Coins</label>
-        <div id="player-coins" class="coin-amount">0</div>
-      </div>
+        <div>
+            <label>👤 Tên của bạn</label>
+            <input id="player-name" maxlength="10" type="text" />
+        </div>
+        <div>
+            <button id="change-skin">🎨 Đổi Skin</button>
+        </div>
+        <div class="coin-display">
+            <label>💰 Xu</label>
+            <div id="player-coins" class="coin-amount">0</div>
+        </div>
     </div>
 
-    <!-- Merchant Modal (giữ nguyên) -->
+    <!-- Skin Shop Modal -->
     <div id="merchant-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>🎨 SKIN SHOP 🎨</h2>
-          <span id="close-modal" class="close">&times;</span>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎨 CỬA HÀNG SKIN 🎨</h2>
+                <span id="close-modal" class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p style="text-align:center; margin-bottom:15px;">Chào mừng! Hãy dùng xu để mua skin nhé!</p>
+                <div class="skin-shop-grid" id="skin-shop-list"></div>
+            </div>
         </div>
-        <div class="modal-body">
-          <p id="merchant-message" class="merchant-message">Welcome! Buy skins with your coins!</p>
-          <div class="skin-shop-grid" id="skin-shop-list">
-            <!-- Skins will be dynamically added here -->
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- THÊM MỚI: NPC Dialog Modal -->
+    <!-- NPC Dialog Modal -->
     <div id="npc-modal" class="modal">
-      <div class="modal-content npc-dialog">
-        <div class="modal-header">
-          <h2 id="npc-name">🌾 Bà Lão Bán Nón</h2>
-          <span id="close-npc" class="close">&times;</span>
+        <div class="modal-content npc-dialog">
+            <div class="modal-header">
+                <h2 id="npc-name">🌾 Bà Lão Bán Nón</h2>
+                <span id="close-npc" class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="npc-avatar">
+                    <img id="npc-avatar-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23d4a373'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='%234a2c1a'%3E👒%3C/text%3E%3C/svg%3E" alt="NPC">
+                </div>
+                <div class="npc-text">
+                    <p id="npc-dialog-text">Chào con! Bà có những chiếc nón lá đẹp lắm...</p>
+                </div>
+                <div class="npc-buttons">
+                    <button id="npc-next-btn" class="npc-btn">➡ Tiếp</button>
+                    <button id="npc-close-btn" class="npc-btn">❌ Đóng</button>
+                </div>
+                <div id="npc-progress"></div>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="npc-avatar">
-            <img id="npc-avatar-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23d4a373'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='%234a2c1a'%3E👒%3C/text%3E%3C/svg%3E" alt="NPC">
-          </div>
-          <div class="npc-text">
-            <p id="npc-dialog-text">Chào con! Bà có những chiếc nón lá đẹp lắm...</p>
-          </div>
-          <div class="npc-buttons">
-            <button id="npc-next-btn" class="npc-btn">➡ Tiếp</button>
-            <button id="npc-close-btn" class="npc-btn">❌ Đóng</button>
-          </div>
-          <div id="npc-progress"></div>
-        </div>
-      </div>
     </div>
 
-    <!-- THÊM MỚI: Interaction Button (hiện khi đến gần NPC) -->
+    <!-- Interaction Button -->
     <div id="interact-btn" class="interact-btn" style="display:none;">
-      <button id="talk-btn">💬 Trò chuyện</button>
+        <button id="talk-btn">💬 Trò chuyện</button>
     </div>
 
-    <!-- THÊM MỚI: Mobile Joystick -->
+    <!-- Mobile Joystick -->
     <div id="joystickContainer" class="joystick-container">
-      <div class="joystick-base"></div>
-      <div id="joystickThumb" class="joystick-thumb"></div>
+        <div class="joystick-base"></div>
+        <div id="joystickThumb" class="joystick-thumb"></div>
     </div>
 
+    <!-- Instructions -->
+    <div class="instructions">
+        🖱️ Click chuột / 🎮 WASD hoặc ↑↓←→
+    </div>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
-        authDomain: "vvss-b7a49.firebaseapp.com",
-        databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "vvss-b7a49",
-        storageBucket: "vvss-b7a49.firebasestorage.app",
-        messagingSenderId: "562837285603",
-        appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6",
-        measurementId: "G-BRSGSK6MSM"
-      };
-      firebase.initializeApp(firebaseConfig);
-    </script>
-
+    
+    <!-- Scripts -->
     <script src="KeyPressListener.js"></script>
     <script src="Joystick.js"></script>
     <script src="NPCSystem.js"></script>
     <script src="app.js"></script>
-  </body>
+</body>
 </html>
