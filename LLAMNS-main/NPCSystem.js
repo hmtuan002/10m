@@ -1,11 +1,12 @@
 class NPCSystem {
-  constructor(npcData, canvas, playerGetter) {
-    this.npc = npcData; // {id, x, y, name, dialogs: ["line1","line2",...], avatar}
+  constructor(npcData, canvas, getPlayerPosition, getPlayerSize) {
+    this.npc = npcData;
     this.canvas = canvas;
-    this.getPlayerPosition = playerGetter;
+    this.getPlayerPosition = getPlayerPosition;
+    this.getPlayerSize = getPlayerSize || (() => 40);
     this.currentDialogIndex = 0;
     this.isDialogOpen = false;
-    this.interactionDistance = 50; // pixels
+    this.interactionDistance = 60;
     this.onTalkCallback = null;
     
     this.initUI();
@@ -19,9 +20,12 @@ class NPCSystem {
     this.closeBtn = document.getElementById('npc-close-btn');
     this.progressSpan = document.getElementById('npc-progress');
     
-    this.nextBtn.onclick = () => this.nextDialog();
-    this.closeBtn.onclick = () => this.closeDialog();
-    document.getElementById('close-npc').onclick = () => this.closeDialog();
+    if (this.npcNameEl) this.npcNameEl.innerText = this.npc.name;
+    
+    if (this.nextBtn) this.nextBtn.onclick = () => this.nextDialog();
+    if (this.closeBtn) this.closeBtn.onclick = () => this.closeDialog();
+    const closeBtn = document.getElementById('close-npc');
+    if (closeBtn) closeBtn.onclick = () => this.closeDialog();
   }
   
   setTalkCallback(callback) {
@@ -36,7 +40,7 @@ class NPCSystem {
   startDialog() {
     this.currentDialogIndex = 0;
     this.isDialogOpen = true;
-    this.modal.style.display = 'block';
+    if (this.modal) this.modal.style.display = 'block';
     this.updateDialog();
     this.showInteractButton(false);
     if (this.onTalkCallback) this.onTalkCallback();
@@ -45,9 +49,11 @@ class NPCSystem {
   updateDialog() {
     const dialogs = this.npc.dialogs;
     if (this.currentDialogIndex < dialogs.length) {
-      this.dialogText.innerText = dialogs[this.currentDialogIndex];
-      this.progressSpan.innerText = `${this.currentDialogIndex + 1}/${dialogs.length}`;
-      this.nextBtn.innerText = this.currentDialogIndex === dialogs.length - 1 ? '🏁 Kết thúc' : '➡ Tiếp';
+      if (this.dialogText) this.dialogText.innerText = dialogs[this.currentDialogIndex];
+      if (this.progressSpan) this.progressSpan.innerText = `${this.currentDialogIndex + 1}/${dialogs.length}`;
+      if (this.nextBtn) {
+        this.nextBtn.innerText = this.currentDialogIndex === dialogs.length - 1 ? '🏁 Kết thúc' : '➡ Tiếp';
+      }
     } else {
       this.closeDialog();
     }
@@ -64,7 +70,7 @@ class NPCSystem {
   
   closeDialog() {
     this.isDialogOpen = false;
-    this.modal.style.display = 'none';
+    if (this.modal) this.modal.style.display = 'none';
     this.currentDialogIndex = 0;
   }
   
@@ -73,14 +79,12 @@ class NPCSystem {
     const player = this.getPlayerPosition();
     if (!player) return;
     
-    // Check distance to NPC
     const dx = player.x - this.npc.x;
     const dy = player.y - this.npc.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
+    const dist = Math.sqrt(dx * dx + dy * dy);
     
     if (dist < this.interactionDistance && !this.isDialogOpen) {
       this.showInteractButton(true);
-      // Bind talk button
       const talkBtn = document.getElementById('talk-btn');
       if (talkBtn && !talkBtn._bound) {
         talkBtn._bound = true;
@@ -93,33 +97,36 @@ class NPCSystem {
   }
   
   draw(ctx) {
-    // Draw NPC on map
     ctx.save();
     ctx.shadowBlur = 0;
-    // Draw circle indicator
+    
+    // Vẽ vòng tròn tương tác
     ctx.beginPath();
-    ctx.arc(this.npc.x, this.npc.y, 25, 0, 2*Math.PI);
-    ctx.fillStyle = 'rgba(212, 163, 115, 0.8)';
+    ctx.arc(this.npc.x, this.npc.y, this.interactionDistance, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(212, 163, 115, 0.1)';
+    ctx.fill();
+    
+    // Vẽ thân NPC
+    ctx.beginPath();
+    ctx.arc(this.npc.x, this.npc.y, 25, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(212, 163, 115, 0.9)';
     ctx.fill();
     ctx.strokeStyle = '#8b5a2b';
     ctx.lineWidth = 2;
     ctx.stroke();
     
-    // Draw icon (if avatar image exists)
-    if (this.npc.avatarImg) {
-      ctx.drawImage(this.npc.avatarImg, this.npc.x-20, this.npc.y-20, 40, 40);
-    } else {
-      ctx.font = "30px Arial";
-      ctx.fillStyle = "#4a2c1a";
-      ctx.fillText("👒", this.npc.x-15, this.npc.y+10);
-    }
+    // Vẽ icon nón lá
+    ctx.font = '32px Arial';
+    ctx.fillStyle = '#4a2c1a';
+    ctx.fillText('👒', this.npc.x - 16, this.npc.y + 12);
     
-    // Draw name
-    ctx.font = "bold 12px 'Source Sans Pro'";
-    ctx.fillStyle = "#fff";
-    ctx.shadowColor = "black";
+    // Vẽ tên
+    ctx.font = 'bold 12px "Source Sans Pro"';
+    ctx.fillStyle = '#fff';
     ctx.shadowBlur = 2;
-    ctx.fillText(this.npc.name, this.npc.x-25, this.npc.y-25);
+    ctx.shadowColor = 'black';
+    ctx.fillText(this.npc.name, this.npc.x - 30, this.npc.y - 28);
+    
     ctx.restore();
   }
 }
