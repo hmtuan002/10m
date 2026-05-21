@@ -2,9 +2,17 @@
 
 /* Animation cho coin */
 @keyframes coinPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.3); color: #ffea00; text-shadow: 0 0 10px gold; }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+        color: #ffea00;
+        text-shadow: 0 0 10px gold;
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .coin-amount.pop {
@@ -13,15 +21,19 @@
 
 /* Animation cho modal */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .modal {
     animation: fadeIn 0.2s ease;
 }
 
-/* Scrollbar */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -40,12 +52,12 @@
     background: #f4a261;
 }
 
-/* Hiệu ứng cho canvas */
+/* Canvas cursor */
 .game-container canvas {
     cursor: crosshair;
 }
 
-/* Hiệu ứng hover cho skin item */
+/* Skin item hover effect */
 .skin-item {
     cursor: pointer;
 }
@@ -54,7 +66,7 @@
     transform: scale(0.95);
 }
 
-/* Hiệu ứng cho nút đóng modal */
+/* Close button transition */
 .close {
     transition: all 0.2s;
 }
@@ -90,12 +102,12 @@
     }
 }
 
-/* Hiệu ứng cho NPC khi hover (trong canvas thì không dùng được nhưng để đây) */
+/* NPC interaction area hint */
 .npc-interact-area {
     cursor: pointer;
 }
 
-/* Đảm bảo game container responsive */
+/* Game container responsive */
 .game-container {
     max-width: 100vw;
     max-height: 100vh;
@@ -105,4 +117,11 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+}
+
+/* Merchant message styling */
+.merchant-message {
+    text-align: center;
+    margin-bottom: 15px;
+    font-style: italic;
 }
