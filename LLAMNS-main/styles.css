@@ -22,7 +22,18 @@ html, body {
   image-rendering: pixelated;
 }
 /* Add to existing styles.css */
+.game-container canvas {
+  cursor: crosshair;
+}
 
+.modal {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 /* NPC Dialog */
 .npc-dialog .modal-content {
   max-width: 400px;
