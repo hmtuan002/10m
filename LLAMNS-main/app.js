@@ -1,541 +1,489 @@
-// ========== app.js - GAME ĐẦY ĐỦ NHÂN VẬT, COIN, MULTIPLAYER, NPC, JOYSTICK ==========
-
-// Khởi tạo canvas
+// ==================== CẤU HÌNH GAME ====================
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 1400;
-canvas.height = 800;
 
-// ========== BIẾN GAME ==========
-let playerId = null;
-let playerName = localStorage.getItem('playerName') || 'Nhà Thám Hiểm';
-let playerCoins = 0;
-let currentSkin = 'default';
-let ownedSkins = ['default'];
+// Kích thước canvas full màn hình
+let canvasWidth = window.innerWidth;
+let canvasHeight = window.innerHeight;
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
 
-// Vị trí người chơi
-let playerX = canvas.width / 2;
-let playerY = canvas.height / 2;
-let targetX = playerX;
-let targetY = playerY;
+// Camera focus vào nhân vật
+let cameraX = 0, cameraY = 0;
 
-// Tốc độ di chuyển
-const MOVE_SPEED = 300;
+// Kích thước map (giả sử map 3000x3000 - bạn có thể điều chỉnh theo map thực tế)
+const MAP_WIDTH = 4000;
+const MAP_HEIGHT = 4000;
 
-// Firebase
-let dbRef = null;
-let playersRef = null;
-let coinsRef = null;
+// Nhân vật chính
+let player = {
+  x: MAP_WIDTH / 2,
+  y: MAP_HEIGHT / 2,
+  radius: 20,
+  speed: 5,
+  skin: 'default',
+  coins: 0,
+  name: 'Player'
+};
 
-// Dữ liệu multiplayer
-let otherPlayers = new Map();
-let coins = new Map();
-
-// ========== DANH SÁCH SKIN ==========
-const skins = [
-    { id: 'default', name: '🐱 Mặc Định', price: 0, emoji: '🐱', color: '#ffccaa' },
-    { id: 'ninja', name: '🥷 Ninja', price: 50, emoji: '🥷', color: '#2c2c2c' },
-    { id: 'wizard', name: '🧙 Phù Thủy', price: 100, emoji: '🧙', color: '#6a0dad' },
-    { id: 'vietnam_hat', name: '👒 Nón Lá Việt Nam', price: 80, emoji: '👒', color: '#d4a373' },
-    { id: 'samurai', name: '⚔️ Samurai', price: 120, emoji: '⚔️', color: '#8b0000' },
-    { id: 'princess', name: '👸 Công Chúa', price: 150, emoji: '👸', color: '#ff69b4' }
+// Danh sách NPC (gồm merchant bán skin và bà lão nói về nón lá)
+const npcs = [
+  { // NPC bán skin
+    id: 'merchant',
+    name: 'Thương Nhân',
+    x: 1800,
+    y: 2100,
+    radius: 28,
+    type: 'shop',
+    dialog: null,
+    avatar: '🛒'
+  },
+  { // NPC mới: Bà lão nói về nón lá Việt Nam
+    id: 'nonla_npc',
+    name: 'Bà Lão Làng',
+    x: 2800,
+    y: 1500,
+    radius: 28,
+    type: 'story',
+    avatar: '🧕',
+    // Nội dung hội thoại nhiều trang (giới thiệu nón lá)
+    dialogPages: [
+      "Chào con! Bà thấy con là người có duyên với văn hóa Việt Nam đấy.",
+      "Con có biết chiếc nón lá không? Nó là biểu tượng của người phụ nữ Việt Nam từ bao đời nay.",
+      "Nón lá được làm từ lá cọ, lá dừa, chuốt từng sợi rất công phu. Dưới nắng mưa miền Tây, nón che chở cho mẹ, cho chị.",
+      "Hình ảnh nón lá nghiêng che mưa nắng đã đi vào thơ ca nhạc họa. Nón bài thơ ở Huế còn lồng cả vần thơ vào bên trong.",
+      "Ngày nay, nón lá vẫn được giữ gìn như một nét đẹp tinh tế. Hãy luôn tự hào về văn hóa Việt Nam con nhé!",
+      "Bà cảm ơn con đã lắng nghe. Chúc con luôn vui và giữ gìn bản sắc dân tộc."
+    ]
+  }
 ];
 
-// ========== NPC BÀ LÃO NÓN LÁ ==========
-const hatNpc = {
-    id: 'hat_npc',
-    x: 1050,
-    y: 580,
-    name: '🌾 Bà Lão Bán Nón Lá',
-    dialogs: [
-        "✨ Chào con! Bà là người làm nón lá truyền thống Việt Nam đây.",
-        "🌿 Nón lá có từ hàng nghìn năm trước, gắn liền với hình ảnh người phụ nữ Việt Nam.",
-        "🎋 Nón được làm từ lá cọ hoặc lá buông, khung tre uốn cong rất tinh xảo.",
-        "📜 Có nhiều loại nón nổi tiếng: nón Bài Thơ (Huế), nón Quai Thao (Bắc Ninh), nón Ngựa...",
-        "🌸 Nón lá còn xuất hiện trong thơ ca: 'Nón lá che nghiêng nắng chiều, câu hò mái đẩy thương yêu dạt dào'.",
-        "💰 Con có thể mua nón lá trong cửa hàng skin với giá 80 xu!",
-        "🎁 Bà chúc con chơi game vui vẻ và luôn nhớ về văn hóa Việt Nam nhé!",
-        "👋 Nếu cần gì, cứ đến gặp bà nha con!"
-    ]
+// Các skin có sẵn (giống cấu trúc cũ)
+const availableSkins = [
+  { id: 'default', name: 'Nhà Nông', price: 0, emoji: '👨‍🌾' },
+  { id: 'warrior', name: 'Dũng Sĩ', price: 100, emoji: '⚔️' },
+  { id: 'mage', name: 'Pháp Sư', price: 150, emoji: '🔮' },
+  { id: 'vietnamese', name: 'Áo Dài', price: 200, emoji: '🇻🇳' }
+];
+
+// Biến điều khiển di chuyển (phím + WASD)
+const keysPressed = {
+  ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+  w: false, s: false, a: false, d: false
 };
 
-let npcSystem = null;
-
-// ========== JOYSTICK VÀ ĐIỀU KHIỂN ==========
-let joystick = null;
+// Joystick ảo
+let joystickActive = false;
 let joystickVector = { x: 0, y: 0 };
+const joystickContainer = document.getElementById('joystickContainer');
+const joystickThumb = document.getElementById('joystickThumb');
+let joystickCenter = { x: 0, y: 0 };
+let joystickRadius = 50;
 
-// Hỗ trợ phím mũi tên và WASD
-const keys = {
-    ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
-    KeyW: false, KeyS: false, KeyA: false, KeyD: false
-};
+// Modal shop
+const modal = document.getElementById('merchant-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const skinShopList = document.getElementById('skin-shop-list');
+const playerCoinsSpan = document.getElementById('player-coins');
+const playerNameInput = document.getElementById('player-name');
 
-// ========== KHỞI TẠO FIREBASE ==========
-function setupFirebase() {
-    const firebaseConfig = {
-        apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
-        authDomain: "vvss-b7a49.firebaseapp.com",
-        databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "vvss-b7a49",
-        storageBucket: "vvss-b7a49.firebasestorage.app",
-        messagingSenderId: "562837285603",
-        appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6",
-        measurementId: "G-BRSGSK6MSM"
-    };
-    
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    
-    firebase.auth().signInAnonymously().catch(console.error);
-    
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-            playerId = user.uid;
-            console.log('Đăng nhập thành công:', playerId);
-            
-            dbRef = firebase.database().ref();
-            playersRef = dbRef.child('players');
-            coinsRef = dbRef.child('coins');
-            
-            // Lưu thông tin người chơi
-            playersRef.child(playerId).set({
-                name: playerName,
-                x: playerX,
-                y: playerY,
-                skin: currentSkin,
-                coins: playerCoins,
-                ownedSkins: ownedSkins,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            // Load coins
-            loadCoins();
-            
-            // Lắng nghe người chơi khác
-            playersRef.on('child_added', (data) => {
-                if (data.key !== playerId) {
-                    otherPlayers.set(data.key, data.val());
-                }
-            });
-            
-            playersRef.on('child_changed', (data) => {
-                if (data.key !== playerId) {
-                    otherPlayers.set(data.key, data.val());
-                }
-            });
-            
-            playersRef.on('child_removed', (data) => {
-                otherPlayers.delete(data.key);
-            });
-            
-            // Cập nhật vị trí định kỳ
-            setInterval(updateServerPosition, 50);
-            
-            // Tạo coin nếu chưa có
-            setTimeout(() => {
-                if (coins.size === 0) generateCoins();
-            }, 1000);
-        }
-    });
+// Dialog NPC (mới)
+const dialogModal = document.getElementById('npc-dialog-modal');
+const dialogText = document.getElementById('npc-dialog-text');
+const dialogNextBtn = document.getElementById('dialog-next-btn');
+const dialogCloseBtn = document.getElementById('dialog-close-btn');
+let currentNPC = null;         // NPC đang trò chuyện
+let currentPageIndex = 0;      // trang hiện tại
+
+// ==================== HÀM HỖ TRỢ ====================
+function updateCoinUI() {
+  playerCoinsSpan.innerText = player.coins;
 }
 
-function updateServerPosition() {
-    if (!playerId || !playersRef) return;
-    playersRef.child(playerId).update({
-        x: playerX,
-        y: playerY,
-        name: playerName,
-        skin: currentSkin,
-        coins: playerCoins,
-        lastSeen: firebase.database.ServerValue.TIMESTAMP
-    });
+function showMerchantModal() {
+  modal.style.display = 'flex';
+  renderSkinShop();
 }
 
-function loadCoins() {
-    coinsRef.on('child_added', (snap) => {
-        coins.set(snap.key, snap.val());
-    });
-    coinsRef.on('child_changed', (snap) => {
-        coins.set(snap.key, snap.val());
-    });
-    coinsRef.on('child_removed', (snap) => {
-        coins.delete(snap.key);
-    });
+function closeMerchantModal() {
+  modal.style.display = 'none';
 }
 
-function generateCoins() {
-    for (let i = 0; i < 35; i++) {
-        const coinId = 'coin_' + Date.now() + '_' + i + '_' + Math.random();
-        const coin = {
-            x: 60 + Math.random() * (canvas.width - 120),
-            y: 60 + Math.random() * (canvas.height - 120),
-            value: 1
-        };
-        coinsRef.child(coinId).set(coin);
-    }
-    
-    // Tái tạo coin định kỳ
-    setInterval(() => {
-        if (coins.size < 20) {
-            const coinId = 'coin_' + Date.now() + '_' + Math.random();
-            const coin = {
-                x: 60 + Math.random() * (canvas.width - 120),
-                y: 60 + Math.random() * (canvas.height - 120),
-                value: 1
-            };
-            coinsRef.child(coinId).set(coin);
-        }
-    }, 30000);
-}
-
-// ========== SETUP INPUT ==========
-function setupInputs() {
-    // Keyboard - mũi tên và WASD
-    window.addEventListener('keydown', (e) => {
-        if (keys.hasOwnProperty(e.code)) {
-            keys[e.code] = true;
-            e.preventDefault();
-        }
-    });
-    
-    window.addEventListener('keyup', (e) => {
-        if (keys.hasOwnProperty(e.code)) {
-            keys[e.code] = false;
-        }
-    });
-    
-    // Click chuột di chuyển
-    canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        targetX = (e.clientX - rect.left) * scaleX;
-        targetY = (e.clientY - rect.top) * scaleY;
-    });
-    
-    // Name input
-    const nameInput = document.getElementById('player-name');
-    if (nameInput) {
-        nameInput.value = playerName;
-        nameInput.addEventListener('change', () => {
-            playerName = nameInput.value.substring(0, 10);
-            localStorage.setItem('playerName', playerName);
-            updateServerPosition();
-        });
-    }
-    
-    // Skin shop
-    const changeSkinBtn = document.getElementById('change-skin');
-    if (changeSkinBtn) {
-        changeSkinBtn.addEventListener('click', showSkinShop);
-    }
-    
-    const closeModal = document.getElementById('close-modal');
-    if (closeModal) {
-        closeModal.addEventListener('click', () => {
-            document.getElementById('merchant-modal').style.display = 'none';
-        });
-    }
-    
-    renderSkinShop();
-}
-
-// ========== SKIN SHOP ==========
-function showSkinShop() {
-    renderSkinShop();
-    const modal = document.getElementById('merchant-modal');
-    if (modal) modal.style.display = 'block';
-}
-
+// Giao diện shop skin
 function renderSkinShop() {
-    const container = document.getElementById('skin-shop-list');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    skins.forEach(skin => {
-        const div = document.createElement('div');
-        div.className = 'skin-item';
-        div.innerHTML = `
-            <div style="font-size: 50px;">${skin.emoji}</div>
-            <div style="font-weight: bold; margin: 5px 0;">${skin.name}</div>
-            <div style="color: #ffd700;">💰 ${skin.price}</div>
-            <button 
-                ${ownedSkins.includes(skin.id) ? 'disabled' : ''}
-                onclick="window.buySkin('${skin.id}', ${skin.price})"
-            >
-                ${ownedSkins.includes(skin.id) ? '✅ Đã sở hữu' : '🛒 Mua'}
-            </button>
-        `;
-        container.appendChild(div);
-    });
+  skinShopList.innerHTML = '';
+  availableSkins.forEach(skin => {
+    const card = document.createElement('div');
+    card.className = 'skin-card';
+    card.innerHTML = `
+      <div style="font-size:48px;">${skin.emoji}</div>
+      <div class="skin-name">${skin.name}</div>
+      <div class="skin-price">💰 ${skin.price}</div>
+    `;
+    card.onclick = () => buySkin(skin);
+    skinShopList.appendChild(card);
+  });
 }
 
-window.buySkin = function(skinId, price) {
-    if (ownedSkins.includes(skinId)) {
-        alert('Bạn đã có skin này rồi!');
-        return;
-    }
-    
-    if (playerCoins >= price) {
-        playerCoins -= price;
-        ownedSkins.push(skinId);
-        updateServerPosition();
-        renderSkinShop();
-        updateCoinDisplay();
-        alert('🎉 Mua thành công ' + skins.find(s => s.id === skinId).name + '!');
+function buySkin(skin) {
+  if (player.coins >= skin.price) {
+    player.coins -= skin.price;
+    player.skin = skin.id;
+    updateCoinUI();
+    const msg = document.getElementById('merchant-message');
+    msg.innerText = `✨ Mua thành công skin ${skin.name}! ✨`;
+    setTimeout(() => {
+      msg.innerText = 'Chào mừng! Dùng xu để mua skin nhé!';
+    }, 2000);
+    // Lưu lên firebase nếu muốn (tùy)
+  } else {
+    alert('Không đủ xu! Hãy nhặt thêm xu trên bản đồ.');
+  }
+}
+
+// ==================== HỘI THOẠI NPC NÓN LÁ ====================
+function openNPCDialog(npc) {
+  if (npc.type !== 'story') return;
+  currentNPC = npc;
+  currentPageIndex = 0;
+  dialogModal.style.display = 'block';
+  updateDialogContent();
+}
+
+function updateDialogContent() {
+  if (!currentNPC || !currentNPC.dialogPages) return;
+  if (currentPageIndex < currentNPC.dialogPages.length) {
+    dialogText.innerText = currentNPC.dialogPages[currentPageIndex];
+  } else {
+    // Hết hội thoại => tự đóng
+    closeDialog();
+  }
+}
+
+function nextDialogPage() {
+  if (currentNPC && currentNPC.dialogPages) {
+    if (currentPageIndex + 1 < currentNPC.dialogPages.length) {
+      currentPageIndex++;
+      updateDialogContent();
     } else {
-        alert('💰 Không đủ xu! Cần ' + price + ' xu. Bạn có ' + playerCoins + ' xu.');
+      closeDialog();
     }
-};
-
-function changeSkin(skinId) {
-    if (ownedSkins.includes(skinId)) {
-        currentSkin = skinId;
-        updateServerPosition();
-        alert('Đã đổi sang ' + skins.find(s => s.id === skinId).name);
-    } else {
-        alert('Bạn chưa sở hữu skin này!');
-    }
+  } else {
+    closeDialog();
+  }
 }
 
-// Click chuột phải đổi skin nhanh
-canvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    if (ownedSkins.length > 1) {
-        const currentIndex = ownedSkins.indexOf(currentSkin);
-        const nextIndex = (currentIndex + 1) % ownedSkins.length;
-        changeSkin(ownedSkins[nextIndex]);
-    }
-});
-
-function updateCoinDisplay() {
-    const coinDisplay = document.getElementById('player-coins');
-    if (coinDisplay) {
-        coinDisplay.innerText = playerCoins;
-        coinDisplay.classList.add('pop');
-        setTimeout(() => coinDisplay.classList.remove('pop'), 300);
-    }
+function closeDialog() {
+  dialogModal.style.display = 'none';
+  currentNPC = null;
+  currentPageIndex = 0;
 }
 
-// ========== SETUP NPC VÀ JOYSTICK ==========
-function setupNPC() {
-    npcSystem = new NPCSystem(hatNpc, canvas, () => ({ x: playerX, y: playerY }));
+// ==================== DI CHUYỂN (WASD + ARROW + JOYSTICK) ====================
+function updateMovement() {
+  let moveX = 0, moveY = 0;
+  
+  // Xử lý từ bàn phím (WASD + mũi tên)
+  if (keysPressed.ArrowUp || keysPressed.w) moveY -= 1;
+  if (keysPressed.ArrowDown || keysPressed.s) moveY += 1;
+  if (keysPressed.ArrowLeft || keysPressed.a) moveX -= 1;
+  if (keysPressed.ArrowRight || keysPressed.d) moveX += 1;
+  
+  // Xử lý từ joystick (mobile)
+  if (joystickActive && (Math.abs(joystickVector.x) > 0.1 || Math.abs(joystickVector.y) > 0.1)) {
+    moveX += joystickVector.x;
+    moveY += joystickVector.y;
+  }
+  
+  // Chuẩn hóa vector
+  if (moveX !== 0 || moveY !== 0) {
+    const len = Math.hypot(moveX, moveY);
+    moveX /= len;
+    moveY /= len;
+  }
+  
+  // Cập nhật vị trí
+  let newX = player.x + moveX * player.speed;
+  let newY = player.y + moveY * player.speed;
+  
+  // Giới hạn trong map
+  player.x = Math.min(Math.max(newX, player.radius + 10), MAP_WIDTH - player.radius - 10);
+  player.y = Math.min(Math.max(newY, player.radius + 10), MAP_HEIGHT - player.radius - 10);
 }
 
-function setupJoystick() {
-    if (window.innerWidth <= 768) {
-        joystick = new VirtualJoystick('joystickContainer', 'joystickThumb', (vec) => {
-            joystickVector = vec;
-        });
+// ==================== KIỂM TRA TƯƠNG TÁC NPC ====================
+function checkNPCProximity() {
+  for (let npc of npcs) {
+    const dx = player.x - npc.x;
+    const dy = player.y - npc.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < player.radius + npc.radius + 15) { // trong vùng tương tác
+      if (npc.type === 'shop') {
+        // Hiện modal bán skin
+        showMerchantModal();
+      } else if (npc.type === 'story' && (!currentNPC || dialogModal.style.display !== 'block')) {
+        // Nếu chưa mở dialog thì mở
+        openNPCDialog(npc);
+      }
+      break; // chỉ tương tác một NPC mỗi frame
     }
+  }
 }
 
-// ========== DI CHUYỂN ==========
-function updateMovement(deltaTime) {
-    let moveX = 0, moveY = 0;
-    
-    // Keyboard: mũi tên + WASD
-    if (keys.ArrowUp || keys.KeyW) moveY -= 1;
-    if (keys.ArrowDown || keys.KeyS) moveY += 1;
-    if (keys.ArrowLeft || keys.KeyA) moveX -= 1;
-    if (keys.ArrowRight || keys.KeyD) moveX += 1;
-    
-    // Joystick (mobile)
-    if (joystick && (joystickVector.x !== 0 || joystickVector.y !== 0)) {
-        moveX = joystickVector.x;
-        moveY = joystickVector.y;
-    }
-    
-    // Di chuyển
-    if (moveX !== 0 || moveY !== 0) {
-        const len = Math.hypot(moveX, moveY);
-        moveX /= len;
-        moveY /= len;
-        playerX += moveX * MOVE_SPEED * deltaTime;
-        playerY += moveY * MOVE_SPEED * deltaTime;
-        targetX = playerX;
-        targetY = playerY;
-    } else {
-        // Click chuột
-        const dx = targetX - playerX;
-        const dy = targetY - playerY;
-        const distance = Math.hypot(dx, dy);
-        if (distance > 5) {
-            const angle = Math.atan2(dy, dx);
-            playerX += Math.cos(angle) * MOVE_SPEED * deltaTime;
-            playerY += Math.sin(angle) * MOVE_SPEED * deltaTime;
-        }
-    }
-    
-    // Giới hạn trong canvas
-    playerX = Math.min(Math.max(35, playerX), canvas.width - 35);
-    playerY = Math.min(Math.max(35, playerY), canvas.height - 35);
-    targetX = Math.min(Math.max(35, targetX), canvas.width - 35);
-    targetY = Math.min(Math.max(35, targetY), canvas.height - 35);
-}
-
-// ========== NHẶT COIN ==========
-function checkCoinCollection() {
-    for (let [id, coin] of coins) {
-        const dx = playerX - coin.x;
-        const dy = playerY - coin.y;
-        const distance = Math.hypot(dx, dy);
-        
-        if (distance < 35) {
-            playerCoins += (coin.value || 1);
-            updateCoinDisplay();
-            coinsRef.child(id).remove();
-            break;
-        }
-    }
-}
-
-// ========== RENDER GAME ==========
+// ==================== VẼ GAME (Map, NPC, Player) ====================
+// Lưu ý: Hàm vẽ này chỉ là demo, nếu bạn có map ảnh thì thay bằng drawImage
 function drawBackground() {
-    // Gradient nền
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#5a9e4e');
-    grad.addColorStop(0.5, '#4a8e3e');
-    grad.addColorStop(1, '#3b6e2e');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Cỏ
-    ctx.fillStyle = '#6aae5a';
-    for (let i = 0; i < 400; i++) {
-        ctx.beginPath();
-        ctx.arc((i * 131) % canvas.width, (i * 253) % canvas.height, 2 + (i % 3), 0, Math.PI * 2);
-        ctx.fill();
-    }
-    
-    // Hoa
-    ctx.fillStyle = '#ffeb3b';
-    for (let i = 0; i < 150; i++) {
-        ctx.beginPath();
-        ctx.arc((i * 97) % canvas.width, (i * 179) % canvas.height, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-    }
+  // Nền xanh mô phỏng cỏ (giả lập map)
+  ctx.fillStyle = '#3c9e3c';
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  
+  // Vẽ lưới ô đơn giản
+  ctx.strokeStyle = '#2d6a2d';
+  ctx.lineWidth = 1;
+  const step = 60;
+  for (let i = 0; i < MAP_WIDTH; i += step) {
+    ctx.beginPath();
+    ctx.moveTo(i - cameraX, 0);
+    ctx.lineTo(i - cameraX, canvasHeight);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, i - cameraY);
+    ctx.lineTo(canvasWidth, i - cameraY);
+    ctx.stroke();
+  }
 }
 
-function drawCoins() {
-    for (let coin of coins.values()) {
-        ctx.save();
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = '#ffd700';
-        ctx.font = '34px Arial';
-        ctx.fillStyle = '#ffd700';
-        ctx.fillText('🪙', coin.x - 17, coin.y - 17);
-        
-        // Hiệu ứng lấp lánh
-        const time = Date.now() / 400;
-        const sparkle = Math.sin(time + coin.x) * 0.5 + 0.5;
-        ctx.globalAlpha = sparkle * 0.6;
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '20px Arial';
-        ctx.fillText('✨', coin.x - 8, coin.y - 28);
-        ctx.restore();
+function drawNPCs() {
+  npcs.forEach(npc => {
+    const screenX = npc.x - cameraX;
+    const screenY = npc.y - cameraY;
+    if (screenX + 30 > 0 && screenX - 30 < canvasWidth && screenY + 30 > 0 && screenY - 30 < canvasHeight) {
+      // Vẽ circle NPC
+      ctx.beginPath();
+      ctx.arc(screenX, screenY, npc.radius, 0, Math.PI*2);
+      ctx.fillStyle = '#e0aa7a';
+      ctx.fill();
+      ctx.strokeStyle = '#b97f44';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Emoji hoặc icon
+      ctx.font = `${npc.radius + 8}px "Segoe UI Emoji"`;
+      ctx.fillStyle = '#2c1e12';
+      ctx.fillText(npc.avatar || '🧑', screenX-18, screenY+12);
+      // Tên
+      ctx.font = 'bold 14px "Source Sans Pro"';
+      ctx.fillStyle = 'white';
+      ctx.shadowBlur = 0;
+      ctx.fillText(npc.name, screenX-25, screenY-15);
+      
+      // Nếu trong phạm vi tương tác thì vẽ icon nói chuyện
+      const dx = player.x - npc.x;
+      const dy = player.y - npc.y;
+      if (Math.hypot(dx, dy) < player.radius + npc.radius + 15) {
+        ctx.font = '28px sans-serif';
+        ctx.fillStyle = '#ffdd99';
+        ctx.fillText('💬', screenX-15, screenY-28);
+      }
     }
-}
-
-function drawOtherPlayers() {
-    for (let [id, player] of otherPlayers) {
-        if (player.x && player.y) {
-            const skinData = skins.find(s => s.id === player.skin) || skins[0];
-            ctx.font = '42px Arial';
-            ctx.fillStyle = '#ffccaa';
-            ctx.fillText(skinData.emoji, player.x - 21, player.y - 21);
-            ctx.font = 'bold 11px "Source Sans Pro"';
-            ctx.fillStyle = 'white';
-            ctx.shadowBlur = 2;
-            ctx.fillText(player.name || '???', player.x - 28, player.y - 38);
-        }
-    }
+  });
 }
 
 function drawPlayer() {
-    const skinData = skins.find(s => s.id === currentSkin) || skins[0];
-    
-    // Bóng
-    ctx.beginPath();
-    ctx.arc(playerX, playerY + 6, 24, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fill();
-    
-    // Nhân vật
-    ctx.font = '48px Arial';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(skinData.emoji, playerX - 24, playerY - 24);
-    
-    // Tên
-    ctx.font = 'bold 12px "Source Sans Pro"';
-    ctx.fillStyle = 'white';
-    ctx.shadowBlur = 3;
-    ctx.fillText(playerName, playerX - 28, playerY - 38);
-    
-    // Viền vàng
-    ctx.beginPath();
-    ctx.arc(playerX, playerY, 32, 0, Math.PI * 2);
-    ctx.strokeStyle = '#ffd700';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-    
-    ctx.shadowBlur = 0;
+  const screenX = player.x - cameraX;
+  const screenY = player.y - cameraY;
+  ctx.beginPath();
+  ctx.arc(screenX, screenY, player.radius, 0, Math.PI*2);
+  const skinEmoji = availableSkins.find(s => s.id === player.skin)?.emoji || '👨‍🌾';
+  ctx.fillStyle = '#ffd966';
+  ctx.fill();
+  ctx.strokeStyle = '#b97f2e';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = `${player.radius + 6}px "Segoe UI Emoji"`;
+  ctx.fillStyle = '#362812';
+  ctx.fillText(skinEmoji, screenX-16, screenY+12);
+  ctx.font = 'bold 14px "Source Sans Pro"';
+  ctx.fillStyle = '#f9f3cf';
+  ctx.fillText(player.name, screenX-25, screenY-18);
 }
 
-function drawUI() {
-    ctx.font = '10px "Source Sans Pro"';
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.fillText('💡 Click chuột phải để đổi skin nhanh', 12, canvas.height - 12);
-    ctx.fillText('🖱️ Click chuột trái để di chuyển', 12, canvas.height - 26);
+function drawCoins() {
+  // Hàm giả để nhặt xu, giữ nguyên cấu trúc có sẵn (bạn có thể bổ sung item coin thật)
+  // Ở đây để demo đơn giản, mỗi giây cộng 1 xu (giả lập)
 }
 
-function draw() {
-    drawBackground();
-    drawCoins();
-    drawOtherPlayers();
-    
-    // Vẽ NPC
-    if (npcSystem) {
-        npcSystem.draw(ctx);
+// ==================== CẬP NHẬT CAMERA ====================
+function updateCamera() {
+  cameraX = player.x - canvasWidth/2;
+  cameraY = player.y - canvasHeight/2;
+  cameraX = Math.min(Math.max(cameraX, 0), MAP_WIDTH - canvasWidth);
+  cameraY = Math.min(Math.max(cameraY, 0), MAP_HEIGHT - canvasHeight);
+}
+
+// ==================== GAME LOOP ====================
+function gameLoop() {
+  updateMovement();
+  updateCamera();
+  checkNPCProximity();
+  
+  // Xóa canvas và vẽ lại
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  drawBackground();
+  drawNPCs();
+  drawPlayer();
+  
+  requestAnimationFrame(gameLoop);
+}
+
+// ==================== KHỞI TẠO SỰ KIỆN BÀN PHÍM ====================
+function initKeyboard() {
+  const handleKeyDown = (e) => {
+    const key = e.key;
+    if (keysPressed.hasOwnProperty(key)) {
+      keysPressed[key] = true;
+      e.preventDefault();
     }
-    
-    drawPlayer();
-    drawUI();
+    // Các phím WASD viết thường
+    if (key === 'w') keysPressed.w = true;
+    if (key === 's') keysPressed.s = true;
+    if (key === 'a') keysPressed.a = true;
+    if (key === 'd') keysPressed.d = true;
+  };
+  
+  const handleKeyUp = (e) => {
+    const key = e.key;
+    if (keysPressed.hasOwnProperty(key)) keysPressed[key] = false;
+    if (key === 'w') keysPressed.w = false;
+    if (key === 's') keysPressed.s = false;
+    if (key === 'a') keysPressed.a = false;
+    if (key === 'd') keysPressed.d = false;
+  };
+  
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keyup', handleKeyUp);
 }
 
-// ========== GAME LOOP ==========
-let lastTime = 0;
-
-function gameLoop(currentTime = 0) {
-    let deltaTime = Math.min(0.033, (currentTime - lastTime) / 1000);
-    
-    if (deltaTime > 0) {
-        updateMovement(deltaTime);
-        checkCoinCollection();
-        
-        // Cập nhật NPC
-        if (npcSystem) {
-            npcSystem.update();
-        }
-        
-        draw();
+// ==================== JOYSTICK ẢO ====================
+function initJoystick() {
+  const container = joystickContainer;
+  const thumb = joystickThumb;
+  const rect = container.getBoundingClientRect();
+  joystickCenter.x = rect.left + rect.width/2;
+  joystickCenter.y = rect.top + rect.height/2;
+  joystickRadius = rect.width/2;
+  
+  const handleMove = (clientX, clientY) => {
+    if (!joystickActive) return;
+    let dx = clientX - joystickCenter.x;
+    let dy = clientY - joystickCenter.y;
+    let distance = Math.min(joystickRadius, Math.hypot(dx, dy));
+    if (distance > 0) {
+      const angle = Math.atan2(dy, dx);
+      const limitedX = Math.cos(angle) * distance;
+      const limitedY = Math.sin(angle) * distance;
+      thumb.style.transform = `translate(calc(-50% + ${limitedX}px), calc(-50% + ${limitedY}px))`;
+      joystickVector.x = limitedX / joystickRadius;
+      joystickVector.y = limitedY / joystickRadius;
+    } else {
+      thumb.style.transform = 'translate(-50%, -50%)';
+      joystickVector = { x: 0, y: 0 };
     }
-    
-    lastTime = currentTime;
-    requestAnimationFrame(gameLoop);
+  };
+  
+  const onStart = (e) => {
+    e.preventDefault();
+    joystickActive = true;
+    const point = e.touches ? e.touches[0] : e;
+    handleMove(point.clientX, point.clientY);
+  };
+  
+  const onMove = (e) => {
+    if (!joystickActive) return;
+    e.preventDefault();
+    const point = e.touches ? e.touches[0] : e;
+    handleMove(point.clientX, point.clientY);
+  };
+  
+  const onEnd = () => {
+    joystickActive = false;
+    joystickVector = { x: 0, y: 0 };
+    thumb.style.transform = 'translate(-50%, -50%)';
+  };
+  
+  container.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
+  container.addEventListener('touchstart', onStart);
+  window.addEventListener('touchmove', onMove);
+  window.addEventListener('touchend', onEnd);
+  
+  window.addEventListener('resize', () => {
+    const newRect = container.getBoundingClientRect();
+    joystickCenter.x = newRect.left + newRect.width/2;
+    joystickCenter.y = newRect.top + newRect.height/2;
+    joystickRadius = newRect.width/2;
+  });
 }
 
-// ========== KHỞI TẠO GAME ==========
-function init() {
-    console.log('Khởi tạo game...');
-    setupFirebase();
-    setupInputs();
-    setupNPC();
-    setupJoystick();
-    gameLoop();
-}
+// ==================== KHỞI CHẠY GAME ====================
+window.addEventListener('load', () => {
+  // Cập nhật kích thước canvas khi resize
+  function resizeCanvas() {
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    updateCamera();
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  
+  initKeyboard();
+  initJoystick();
+  
+  // UI events
+  document.getElementById('change-skin').addEventListener('click', () => showMerchantModal());
+  closeModalBtn.addEventListener('click', closeMerchantModal);
+  window.addEventListener('click', (e) => { if (e.target === modal) closeMerchantModal(); });
+  dialogNextBtn.addEventListener('click', nextDialogPage);
+  dialogCloseBtn.addEventListener('click', closeDialog);
+  
+  // Tên người chơi
+  playerNameInput.value = player.name;
+  playerNameInput.addEventListener('change', (e) => { player.name = e.target.value || 'Player'; });
+  
+  // Demo: random thêm xu mỗi giây để test mua skin
+  setInterval(() => {
+    player.coins += 5;
+    updateCoinUI();
+  }, 3000);
+  
+  updateCoinUI();
+  gameLoop();
+});
 
-// Khởi động game
-window.onload = init;
+// KeyPressListener tương thích nếu có dùng (không xóa)
+class KeyPressListener {
+  constructor(keyCode, callback) {
+    let keySafe = true;
+    this.keydownFunction = function(event) {
+      if (event.code === keyCode) {
+         if (keySafe) {
+            keySafe = false;
+            callback();
+         }  
+      }
+   };
+   this.keyupFunction = function(event) {
+      if (event.code === keyCode) {
+         keySafe = true;
+      }         
+   };
+   document.addEventListener("keydown", this.keydownFunction);
+   document.addEventListener("keyup", this.keyupFunction);
+  }
+  unbind() { 
+    document.removeEventListener("keydown", this.keydownFunction);
+    document.removeEventListener("keyup", this.keyupFunction);
+  }
+}
